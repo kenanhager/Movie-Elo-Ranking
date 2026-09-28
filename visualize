@@ -1,0 +1,230 @@
+import ast
+import concurrent.futures
+import io
+import tkinter as tk
+from tkinter import messagebox, ttk
+from PIL import Image, ImageTk
+import requests
+
+TMDB_API_KEY = "YOUR_TMDB_API_KEY_HERE"  # Replace with your TMDB API Key
+IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185"
+
+
+def fetch_movie_poster(movie_item, api_key):
+    """
+    Takes a sublist where movie_item[0] is the movie name.
+    Optional elements (e.g. year) are used to refine search if provided.
+    """
+    movie_title = str(movie_item[0]).strip()
+    search_url = "https://api.themoviedb.org/3/search/movie"
+    params = {"api_key": api_key, "query": movie_title}
+
+    # If the sublist contains a 4-digit release year in position 1, use it to increase search precision
+    if len(movie_item) > 1 and str(movie_item[1]).isdigit() and len(str(movie_item[1])) == 4:
+        params["year"] = str(movie_item[1])
+
+    try:
+        response = requests.get(search_url, params=params, timeout=10)
+        response.raise_for_status()
+        results = response.json().get("results", [])
+
+        if not results or not results[0].get("poster_path"):
+            return movie_item, None, "Poster not found"
+
+        poster_path = results[0]["poster_path"]
+        poster_url = f"{IMAGE_BASE_URL}{poster_path}"
+
+        img_response = requests.get(poster_url, timeout=10)
+        img_response.raise_for_status()
+
+        img_data = io.BytesIO(img_response.content)
+        img = Image.open(img_data)
+        img = img.resize((150, 225), Image.Resampling.LANCZOS)
+        return movie_item, img, None
+
+    except Exception as e:
+        return movie_item, None, str(e)
+
+
+class PosterGalleryWindow(tk.Toplevel):
+    """Separate window displaying posters ordered by the input list of lists."""
+
+    def __init__(self, parent, movies_data, api_key):
+        super().__init__(parent)
+        self.title("TMDB Movie Posters")
+        self.geometry("820x600")
+
+        self.movies_data = movies_data
+        self.api_key = api_key
+        self.photo_images = []  # Retain references to prevent garbage collection
+
+        # Status Label
+        self.status_label = ttk.Label(
+            self, text="Fetching posters...", font=("Arial", 11)
+        )
+        self.status_label.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        # Scrollable Canvas
+        self.canvas = tk.Canvas(self, borderwidth=0, highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(
+            self, orient="vertical", command=self.canvas.yview
+        )
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            ),
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.load_posters()
+
+    def load_posters(self):
+        # Concurrently fetch posters while preserving input order
+        results_map = {}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            future_to_movie = {
+                executor.submit(
+                    fetch_movie_poster, item, self.api_key
+                ): idx
+                for idx, item in enumerate(self.movies_data)
+            }
+
+            for future in concurrent.futures.as_completed(future_to_movie):
+                idx = future_to_movie[future]
+                results_map[idx] = future.result()
+
+        # Render gallery in exact order of input lists
+        columns = 4
+        for idx in range(len(self.movies_data)):
+            movie_item, img, error = results_map[idx]
+            movie_title = str(movie_item[0])
+            
+            # Display any extra metadata provided in sublist items (e.g., year, genre)
+            extra_info = (
+                f"\n({', '.join(map(str, movie_item[1:]))})"
+                if len(movie_item) > 1
+                else ""
+            )
+
+            row = idx // columns
+            col = idx % columns
+
+            card_frame = ttk.Frame(
+                self.scrollable_frame, padding=10, relief="groove"
+            )
+            card_frame.grid(row=row, column=col, padx=10, pady=10, sticky="n")
+
+            if img:
+                tk_img = ImageTk.PhotoImage(img)
+                self.photo_images.append(tk_img)
+                lbl_img = ttk.Label(card_frame, image=tk_img)
+                lbl_img.pack()
+            else:
+                lbl_no_img = tk.Label(
+                    card_frame,
+                    text="[No Image]",
+                    width=20,
+                    height=12,
+                    bg="gray80",
+                )
+                lbl_no_img.pack()
+
+            # Display title (item[0]) and extra details if present
+            lbl_title = ttk.Label(
+                card_frame,
+                text=f"{movie_title}{extra_info}",
+                wraplength=140,
+                justify="center",
+                font=("Arial", 9, "bold"),
+            )
+            lbl_title.pack(pady=(5, 0))
+
+        self.status_label.config(
+            text=f"Loaded {len(self.movies_data)} poster(s)."
+        )
+
+
+class App(tk.Tk):
+    """Main application window taking in a nested Python list structure."""
+
+    def __init__(self):
+        super().__init__()
+        self.title("TMDB Poster Viewer")
+        self.geometry("500x500")
+
+        # API Key Field
+        ttk.Label(self, text="TMDB API Key:", font=("Arial", 10, "bold")).pack(
+            anchor="w", padx=15, pady=(15, 2)
+        )
+        self.api_entry = ttk.Entry(self, width=55)
+        self.api_entry.insert(0, TMDB_API_KEY)
+        self.api_entry.pack(padx=15, fill=tk.X)
+
+        # Movies Input Field
+        ttk.Label(
+            self,
+            text="Enter List of Lists (Python syntax):",
+            font=("Arial", 10, "bold"),
+        ).pack(anchor="w", padx=15, pady=(15, 2))
+
+        self.txt_movies = tk.Text(self, height=14, width=55)
+        self.txt_movies.pack(padx=15, fill=tk.BOTH, expand=True)
+
+        # Default nested list sample input
+        sample_data = (
+            '[\n'
+            '    ["Inception", "2010", "Sci-Fi"],\n'
+            '    ["The Dark Knight", "2008"],\n'
+            '    ["Interstellar", "2014"],\n'
+            '    ["Spirited Away"],\n'
+            '    ["Pulp Fiction", "1994"]\n'
+            ']'
+        )
+        self.txt_movies.insert(tk.END, sample_data)
+
+        btn_submit = ttk.Button(
+            self, text="Display Posters Window", command=self.open_gallery
+        )
+        btn_submit.pack(padx=15, pady=15)
+
+    def open_gallery(self):
+        api_key = self.api_entry.get().strip()
+        raw_text = self.txt_movies.get("1.0", tk.END).strip()
+
+        if not api_key or api_key == "YOUR_TMDB_API_KEY_HERE":
+            messagebox.showerror(
+                "API Key Error", "Please enter a valid TMDB API key."
+            )
+            return
+
+        # Safely evaluate string representation of nested list
+        try:
+            movies_data = ast.literal_eval(raw_text)
+            if not isinstance(movies_data, list):
+                raise ValueError("Input must be a top-level list.")
+            for item in movies_data:
+                if not isinstance(item, list) or len(item) == 0:
+                    raise ValueError(
+                        "Each item must be a sublist with at least one movie name."
+                    )
+        except Exception as e:
+            messagebox.showerror(
+                "Format Error",
+                f"Invalid format! Expected a list of lists.\n\nExample:\n[['Inception', '2010'], ['The Dark Knight']]\n\nError: {e}",
+            )
+            return
+
+        PosterGalleryWindow(self, movies_data, api_key)
+
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
