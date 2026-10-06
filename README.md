@@ -86,7 +86,7 @@ each entry to an initial Elo rating utilizing normal distribution parameters:
 
 3.4 Exception Handling & Data Integrity
 
-* Unrated Entries: Records missing explicit ratings are assigned $\text{$DEFAULT_ELO_MEAN$}$ ($1200.0$).
+* Unrated Entries: Records missing explicit ratings are assigned `DEFAULT_ELO_MEAN` (1200.0)
 * Homonymous Titles: Distinguishability between identical film titles is enforced via the release year parameter.
 * Malformed Values: Non-numeric data in rating attributes are intercepted and bypassed safely.
 
