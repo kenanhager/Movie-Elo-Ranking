@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie ELO Rankings</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; margin: 0; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .nav-bar { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; }
+        .nav-link { text-decoration: none; color: #aaaaaa; font-weight: bold; font-size: 16px; padding: 8px 16px; border-radius: 6px; background: #1e1e1e; border: 1px solid #333; }
+        .nav-link.active, .nav-link:hover { color: #007bff; border-color: #007bff; }
+        .grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
+        .card { 
+            position: relative; background: #1e1e1e; padding: 10px; border-radius: 8px; 
+            width: 185px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+            transition: transform 0.2s ease;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .badge { 
+            position: absolute; top: 15px; left: 15px; background: rgba(0, 0, 0, 0.85); 
+            color: #ffcc00; font-weight: bold; font-size: 13px; padding: 4px 8px; 
+            border-radius: 4px; border: 1px solid #ffcc00; z-index: 2;
+        }
+        .card img { width: 100%; height: 278px; object-fit: cover; border-radius: 4px; background: #2a2a2a; }
+        .title { font-size: 14px; font-weight: bold; margin-top: 8px; word-wrap: break-word; }
+        .year { font-size: 12px; color: #aaaaaa; margin-top: 2px; }
+        .rating { font-size: 13px; color: #ffcc00; font-weight: bold; margin-top: 4px; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 25px 0; }
+        .btn { padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold; background-color: #007bff; color: white; transition: background 0.2s; }
+        .btn:hover:not(.disabled) { background-color: #0056b3; }
+        .btn.disabled { background-color: #333333; color: #777777; cursor: not-allowed; }
+        .page-info { font-size: 15px; color: #cccccc; }
+    </style>
+</head>
+<body>
+    <h1>Movie Poster Rankings</h1>
+    
+    <div class="nav-bar">
+        <a href="/" class="nav-link active">Rankings Gallery</a>
+        <a href="/vote" class="nav-link ">Match Voting</a>
+        <a href="/rank10" class="nav-link ">Rank 10 Random</a>
+        <a href="/import">CSV Tools</a>
+    </div>
+    
+    
+    <div class="pagination">
+        <span class="btn disabled">← Previous</span>
+        <span class="page-info">Page 1 of 9 (871 Movies Total)</span>
+        <a href="/?page=2" class="btn">Next →</a>
+    </div>
+    
+    <div class="grid">
+        
+        <div class="card">
+            <div class="badge">#1</div>
+            <img src="https://image.tmdb.org/t/p/w185/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg" alt="Parasite" loading="lazy">
+            <div class="title">Parasite</div>
+            <div class="year">(2019)</div>
+            <div class="rating">ELO: 2056.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#2</div>
+            <img src="https://image.tmdb.org/t/p/w185/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg" alt="Dune: Part Two" loading="lazy">
+            <div class="title">Dune: Part Two</div>
+            <div class="year">(2024)</div>
+            <div class="rating">ELO: 2047.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#3</div>
+            <img src="https://image.tmdb.org/t/p/w185/x2drgoXYZ8484lqyDj7L1CEVR4T.jpg" alt="American History X" loading="lazy">
+            <div class="title">American History X</div>
+            <div class="year">(1998)</div>
+            <div class="rating">ELO: 2046.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#4</div>
+            <img src="https://image.tmdb.org/t/p/w185/oZNPzxqM2s5DyVWab09NTQScDQt.jpg" alt="Star Wars: Episode II – Attack of the Clones" loading="lazy">
+            <div class="title">Star Wars: Episode II – Attack of the Clones</div>
+            <div class="year">(2002)</div>
+            <div class="rating">ELO: 2043.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#5</div>
+            <img src="https://image.tmdb.org/t/p/w185/vfrQk5IPloGg1v9Rzbh2Eg3VGyM.jpg" alt="Alien" loading="lazy">
+            <div class="title">Alien</div>
+            <div class="year">(1979)</div>
+            <div class="rating">ELO: 2041.2</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#6</div>
+            <img src="https://image.tmdb.org/t/p/w185/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg" alt="Inception" loading="lazy">
+            <div class="title">Inception</div>
+            <div class="year">(2010)</div>
+            <div class="rating">ELO: 2040.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#7</div>
+            <img src="https://image.tmdb.org/t/p/w185/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg" alt="The Shawshank Redemption" loading="lazy">
+            <div class="title">The Shawshank Redemption</div>
+            <div class="year">(1994)</div>
+            <div class="rating">ELO: 2040.5</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#8</div>
+            <img src="https://image.tmdb.org/t/p/w185/z81rBzHNgiNLean2JTGHgxjJ8nq.jpg" alt="Badlands" loading="lazy">
+            <div class="title">Badlands</div>
+            <div class="year">(1973)</div>
+            <div class="rating">ELO: 2040.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#9</div>
+            <img src="https://image.tmdb.org/t/p/w185/nNAeTmF4CtdSgMDplXTDPOpYzsX.jpg" alt="The Empire Strikes Back" loading="lazy">
+            <div class="title">The Empire Strikes Back</div>
+            <div class="year">(1980)</div>
+            <div class="rating">ELO: 2039.8</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#10</div>
+            <img src="https://image.tmdb.org/t/p/w185/i0yw1mFbB7sNGHCs7EXZPzFkdA1.jpg" alt="Rogue One: A Star Wars Story" loading="lazy">
+            <div class="title">Rogue One: A Star Wars Story</div>
+            <div class="year">(2016)</div>
+            <div class="rating">ELO: 2035.2</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#11</div>
+            <img src="https://image.tmdb.org/t/p/w185/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg" alt="The Lord of the Rings: The Fellowship of the Ring" loading="lazy">
+            <div class="title">The Lord of the Rings: The Fellowship of the Ring</div>
+            <div class="year">(2001)</div>
+            <div class="rating">ELO: 2034.9</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#12</div>
+            <img src="https://image.tmdb.org/t/p/w185/lbctonEnewCYZ4FYoTZhs8cidAl.jpg" alt="The Lego Movie" loading="lazy">
+            <div class="title">The Lego Movie</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 2034.5</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#13</div>
+            <img src="https://image.tmdb.org/t/p/w185/5VTN0pR8gcqV3EPUHHfMGnJYN9L.jpg" alt="The Lord of the Rings: The Two Towers" loading="lazy">
+            <div class="title">The Lord of the Rings: The Two Towers</div>
+            <div class="year">(2002)</div>
+            <div class="rating">ELO: 2029.8</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#14</div>
+            <img src="https://image.tmdb.org/t/p/w185/zhG3vKWyDRaZYoaww1UVAi29T9h.jpg" alt="12 Angry Men" loading="lazy">
+            <div class="title">12 Angry Men</div>
+            <div class="year">(1957)</div>
+            <div class="rating">ELO: 2022.3</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#15</div>
+            <img src="https://image.tmdb.org/t/p/w185/cRlMrbc4Iof7vN0ZqHwJnMBYBLi.jpg" alt="Triangle" loading="lazy">
+            <div class="title">Triangle</div>
+            <div class="year">(2009)</div>
+            <div class="rating">ELO: 2022.1</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#16</div>
+            <img src="https://image.tmdb.org/t/p/w185/pgqj7QoBPWFLLKtLEpPmFYFRMgB.jpg" alt="Solaris" loading="lazy">
+            <div class="title">Solaris</div>
+            <div class="year">(1972)</div>
+            <div class="rating">ELO: 2021.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#17</div>
+            <img src="https://image.tmdb.org/t/p/w185/s5f0FbVAABEnJYKaApWORTxhiFC.jpg" alt="Inland Empire" loading="lazy">
+            <div class="title">Inland Empire</div>
+            <div class="year">(2006)</div>
+            <div class="rating">ELO: 2020.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#18</div>
+            <img src="https://image.tmdb.org/t/p/w185/5MwkWH9tYHv3mV9OdYTMR5qreIz.jpg" alt="Eternal Sunshine of the Spotless Mind" loading="lazy">
+            <div class="title">Eternal Sunshine of the Spotless Mind</div>
+            <div class="year">(2004)</div>
+            <div class="rating">ELO: 2018.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#19</div>
+            <img src="https://image.tmdb.org/t/p/w185/nrmXQ0zcZUL8jFLrakWc90IR8z9.jpg" alt="Shutter Island" loading="lazy">
+            <div class="title">Shutter Island</div>
+            <div class="year">(2010)</div>
+            <div class="rating">ELO: 2012.1</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#20</div>
+            <img src="https://image.tmdb.org/t/p/w185/wN2xWp1eIwCKOD0BHTcErTBv1Uq.jpg" alt="Gladiator" loading="lazy">
+            <div class="title">Gladiator</div>
+            <div class="year">(2000)</div>
+            <div class="rating">ELO: 2010.1</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#21</div>
+            <img src="https://image.tmdb.org/t/p/w185/qFmwhVUoUSXjkKRmca5yGDEXBIj.jpg" alt="Spider-Man 3" loading="lazy">
+            <div class="title">Spider-Man 3</div>
+            <div class="year">(2007)</div>
+            <div class="rating">ELO: 2005.9</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#22</div>
+            <img src="https://image.tmdb.org/t/p/w185/2FC9L9MrjBoGHYjYZjdWQdopVYb.jpg" alt="The Princess Bride" loading="lazy">
+            <div class="title">The Princess Bride</div>
+            <div class="year">(1987)</div>
+            <div class="rating">ELO: 2005.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#23</div>
+            <img src="https://image.tmdb.org/t/p/w185/6Iv6Uwa2SBLN0dSGM00rdrwN4MJ.jpg" alt="Napoleon Dynamite" loading="lazy">
+            <div class="title">Napoleon Dynamite</div>
+            <div class="year">(2004)</div>
+            <div class="rating">ELO: 2002.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#24</div>
+            <img src="https://image.tmdb.org/t/p/w185/99X2SgyFunJFXGAYnDv3sb9pnUD.jpg" alt="The Usual Suspects" loading="lazy">
+            <div class="title">The Usual Suspects</div>
+            <div class="year">(1995)</div>
+            <div class="rating">ELO: 2001.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#25</div>
+            <img src="https://image.tmdb.org/t/p/w185/lr9ZIrmuwVmZhpZuTCW8D9g0ZJe.jpg" alt="Scream" loading="lazy">
+            <div class="title">Scream</div>
+            <div class="year">(1996)</div>
+            <div class="rating">ELO: 2001.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#26</div>
+            <img src="https://image.tmdb.org/t/p/w185/cl0HEZT8UfzLqaMrYTvGNHOfPYj.jpg" alt="Persona" loading="lazy">
+            <div class="title">Persona</div>
+            <div class="year">(1966)</div>
+            <div class="rating">ELO: 2000.3</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#27</div>
+            <img src="https://image.tmdb.org/t/p/w185/191nKfP0ehp3uIvWqgPbFmI4lv9.jpg" alt="Se7en" loading="lazy">
+            <div class="title">Se7en</div>
+            <div class="year">(1995)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#28</div>
+            <img src="https://image.tmdb.org/t/p/w185/xSI0dbKLDETwhiVUy6hGE8KXUln.jpg" alt="Rocky" loading="lazy">
+            <div class="title">Rocky</div>
+            <div class="year">(1976)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#29</div>
+            <img src="https://image.tmdb.org/t/p/w185/tYfijzolzgoMOtegh1Y7j2Enorg.jpg" alt="X-Men: Days of Future Past" loading="lazy">
+            <div class="title">X-Men: Days of Future Past</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#30</div>
+            <img src="https://image.tmdb.org/t/p/w185/wGFCvylul8iEQhJOKfwZGGvXMzA.jpg" alt="Tombstone" loading="lazy">
+            <div class="title">Tombstone</div>
+            <div class="year">(1993)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#31</div>
+            <img src="https://image.tmdb.org/t/p/w185/aCIFMriQh8rvhxpN1IWGgvH0Tlg.jpg" alt="Tenet" loading="lazy">
+            <div class="title">Tenet</div>
+            <div class="year">(2020)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#32</div>
+            <img src="https://image.tmdb.org/t/p/w185/74xTEgt7R36Fpooo50r9T25onhq.jpg" alt="The Batman" loading="lazy">
+            <div class="title">The Batman</div>
+            <div class="year">(2022)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#33</div>
+            <img src="https://image.tmdb.org/t/p/w185/iiZZdoQBEYBv6id8su7ImL0oCbD.jpg" alt="Spider-Man: Into the Spider-Verse" loading="lazy">
+            <div class="title">Spider-Man: Into the Spider-Verse</div>
+            <div class="year">(2018)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#34</div>
+            <img src="https://image.tmdb.org/t/p/w185/n0YuM4f5lvGAP6MAW2kBIzugXnc.jpg" alt="Top Gun: Maverick" loading="lazy">
+            <div class="title">Top Gun: Maverick</div>
+            <div class="year">(2022)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#35</div>
+            <img src="https://image.tmdb.org/t/p/w185/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg" alt="Spider-Man: Across the Spider-Verse" loading="lazy">
+            <div class="title">Spider-Man: Across the Spider-Verse</div>
+            <div class="year">(2023)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#36</div>
+            <img src="https://image.tmdb.org/t/p/w185/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg" alt="The Matrix" loading="lazy">
+            <div class="title">The Matrix</div>
+            <div class="year">(1999)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#37</div>
+            <img src="https://image.tmdb.org/t/p/w185/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg" alt="The Lord of the Rings: The Return of the King" loading="lazy">
+            <div class="title">The Lord of the Rings: The Return of the King</div>
+            <div class="year">(2003)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#38</div>
+            <img src="https://image.tmdb.org/t/p/w185/o0giW5oasaef5m9sgBuq0C7IkIa.jpg" alt="Stoker" loading="lazy">
+            <div class="title">Stoker</div>
+            <div class="year">(2013)</div>
+            <div class="rating">ELO: 2000.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#39</div>
+            <img src="https://image.tmdb.org/t/p/w185/JHmsBiX1tjCKqAul1lzC20WcAW.jpg" alt="Three Colours: Red" loading="lazy">
+            <div class="title">Three Colours: Red</div>
+            <div class="year">(1994)</div>
+            <div class="rating">ELO: 1998.8</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#40</div>
+            <img src="https://image.tmdb.org/t/p/w185/l5uxY5m5OInWpcExIpKG6AR3rgL.jpg" alt="Mission: Impossible" loading="lazy">
+            <div class="title">Mission: Impossible</div>
+            <div class="year">(1996)</div>
+            <div class="rating">ELO: 1984.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#41</div>
+            <img src="https://image.tmdb.org/t/p/w185/hwawxSwOkjeld4eQLSkIyyYNnqO.jpg" alt="The Pirates Who Don't Do Anything: A VeggieTales Movie" loading="lazy">
+            <div class="title">The Pirates Who Don't Do Anything: A VeggieTales Movie</div>
+            <div class="year">(2008)</div>
+            <div class="rating">ELO: 1984.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#42</div>
+            <img src="https://image.tmdb.org/t/p/w185/gnSU2wUBq2gTkBEkxY8C1d1fXAQ.jpg" alt="Free Birds" loading="lazy">
+            <div class="title">Free Birds</div>
+            <div class="year">(2013)</div>
+            <div class="rating">ELO: 1956.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#43</div>
+            <img src="https://image.tmdb.org/t/p/w185/uL5Yg8MEgHGXymTaJBYXn9g0xsH.jpg" alt="3 Women" loading="lazy">
+            <div class="title">3 Women</div>
+            <div class="year">(1977)</div>
+            <div class="rating">ELO: 1937.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#44</div>
+            <img src="https://image.tmdb.org/t/p/w185/rHUg2AuIuLSIYMYFgavVwqt1jtc.jpg" alt="Birdman or (The Unexpected Virtue of Ignorance)" loading="lazy">
+            <div class="title">Birdman or (The Unexpected Virtue of Ignorance)</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 1922.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#45</div>
+            <img src="https://image.tmdb.org/t/p/w185/z2FnLKpFi1HPO7BEJxdkv6hpJSU.jpg" alt="Good Will Hunting" loading="lazy">
+            <div class="title">Good Will Hunting</div>
+            <div class="year">(1997)</div>
+            <div class="rating">ELO: 1922.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#46</div>
+            <img src="https://image.tmdb.org/t/p/w185/xfSAoBEm9MNBjmlNcDYLvLSMlnq.jpg" alt="Star Wars: Episode III – Revenge of the Sith" loading="lazy">
+            <div class="title">Star Wars: Episode III – Revenge of the Sith</div>
+            <div class="year">(2005)</div>
+            <div class="rating">ELO: 1921.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#47</div>
+            <img src="https://image.tmdb.org/t/p/w185/qJ2tW6WMUDux911r6m7haRef0WH.jpg" alt="The Dark Knight" loading="lazy">
+            <div class="title">The Dark Knight</div>
+            <div class="year">(2008)</div>
+            <div class="rating">ELO: 1920.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#48</div>
+            <img src="https://image.tmdb.org/t/p/w185/dEtjPywhDbAXYjoFfhBC4U9unU7.jpg" alt="Annie Hall" loading="lazy">
+            <div class="title">Annie Hall</div>
+            <div class="year">(1977)</div>
+            <div class="rating">ELO: 1919.1</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#49</div>
+            <img src="https://image.tmdb.org/t/p/w185/6YmeO4pB7XTh8P8F960O1uA14JO.jpg" alt="Zodiac" loading="lazy">
+            <div class="title">Zodiac</div>
+            <div class="year">(2007)</div>
+            <div class="rating">ELO: 1917.2</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#50</div>
+            <img src="https://image.tmdb.org/t/p/w185/lABvGN7fDk5ifnwZoxij6G96t2w.jpg" alt="Jerry Maguire" loading="lazy">
+            <div class="title">Jerry Maguire</div>
+            <div class="year">(1996)</div>
+            <div class="rating">ELO: 1913.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#51</div>
+            <img src="https://image.tmdb.org/t/p/w185/8a1lJs7mFyGhGhZZDT1azJUoQiZ.jpg" alt="The Godfather Part II" loading="lazy">
+            <div class="title">The Godfather Part II</div>
+            <div class="year">(1974)</div>
+            <div class="rating">ELO: 1911.9</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#52</div>
+            <img src="https://via.placeholder.com/185x278?text=No+Poster" alt="Perfect Blue" loading="lazy">
+            <div class="title">Perfect Blue</div>
+            <div class="year">(1997)</div>
+            <div class="rating">ELO: 1908.9</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#53</div>
+            <img src="https://image.tmdb.org/t/p/w185/znfLskGQnXYB2xcOGM9eInRHPAV.jpg" alt="Barry Lyndon" loading="lazy">
+            <div class="title">Barry Lyndon</div>
+            <div class="year">(1975)</div>
+            <div class="rating">ELO: 1908.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#54</div>
+            <img src="https://image.tmdb.org/t/p/w185/lYWEXbQgRTR4ZQleSXAgRbxAjvq.jpg" alt="Marty Supreme" loading="lazy">
+            <div class="title">Marty Supreme</div>
+            <div class="year">(2025)</div>
+            <div class="rating">ELO: 1906.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#55</div>
+            <img src="https://image.tmdb.org/t/p/w185/7nTkHjETdGMYK1phHwDbPsrzbYl.jpg" alt="Monty Python and the Holy Grail" loading="lazy">
+            <div class="title">Monty Python and the Holy Grail</div>
+            <div class="year">(1975)</div>
+            <div class="rating">ELO: 1902.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#56</div>
+            <img src="https://image.tmdb.org/t/p/w185/or6XJBVpcEbIkma0V9zshnbEtx4.jpg" alt="Spider-Man" loading="lazy">
+            <div class="title">Spider-Man</div>
+            <div class="year">(2002)</div>
+            <div class="rating">ELO: 1900.5</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#57</div>
+            <img src="https://image.tmdb.org/t/p/w185/fai0rspsNeJCS69wHNjOdWxcI7P.jpg" alt="Star Wars" loading="lazy">
+            <div class="title">Star Wars</div>
+            <div class="year">(1977)</div>
+            <div class="rating">ELO: 1894.9</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#58</div>
+            <img src="https://image.tmdb.org/t/p/w185/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg" alt="The Grand Budapest Hotel" loading="lazy">
+            <div class="title">The Grand Budapest Hotel</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 1893.1</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#59</div>
+            <img src="https://image.tmdb.org/t/p/w185/ygGmAO60t8GyqUo9xYeYxSZAR3b.jpg" alt="How to Train Your Dragon" loading="lazy">
+            <div class="title">How to Train Your Dragon</div>
+            <div class="year">(2010)</div>
+            <div class="rating">ELO: 1888.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#60</div>
+            <img src="https://image.tmdb.org/t/p/w185/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="Oppenheimer" loading="lazy">
+            <div class="title">Oppenheimer</div>
+            <div class="year">(2023)</div>
+            <div class="rating">ELO: 1885.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#61</div>
+            <img src="https://image.tmdb.org/t/p/w185/rMnXNxBKF8TnYn9NSE2nPTFn5Fq.jpg" alt="Blind Chance" loading="lazy">
+            <div class="title">Blind Chance</div>
+            <div class="year">(1987)</div>
+            <div class="rating">ELO: 1882.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#62</div>
+            <img src="https://image.tmdb.org/t/p/w185/yz4QVqPx3h1hD1DfqqQkCq3rmxW.jpg" alt="Psycho" loading="lazy">
+            <div class="title">Psycho</div>
+            <div class="year">(1960)</div>
+            <div class="rating">ELO: 1880.4</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#63</div>
+            <img src="https://image.tmdb.org/t/p/w185/jQYlydvHm3kUix1f8prMucrplhm.jpg" alt="Return of the Jedi" loading="lazy">
+            <div class="title">Return of the Jedi</div>
+            <div class="year">(1983)</div>
+            <div class="rating">ELO: 1880.2</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#64</div>
+            <img src="https://image.tmdb.org/t/p/w185/Ag2B2KHKQPukjH7WutmgnnSNurZ.jpg" alt="The Prestige" loading="lazy">
+            <div class="title">The Prestige</div>
+            <div class="year">(2006)</div>
+            <div class="rating">ELO: 1880.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#65</div>
+            <img src="https://image.tmdb.org/t/p/w185/uhviyknTT5cEQXbn6vWIqfM4vGm.jpg" alt="Prisoners" loading="lazy">
+            <div class="title">Prisoners</div>
+            <div class="year">(2013)</div>
+            <div class="rating">ELO: 1879.5</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#66</div>
+            <img src="https://image.tmdb.org/t/p/w185/zN4ILX2x64PvT2jIOAHXxCOi5WA.jpg" alt="The Discreet Charm of the Bourgeoisie" loading="lazy">
+            <div class="title">The Discreet Charm of the Bourgeoisie</div>
+            <div class="year">(1972)</div>
+            <div class="rating">ELO: 1878.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#67</div>
+            <img src="https://via.placeholder.com/185x278?text=No+Poster" alt="V for Vendetta" loading="lazy">
+            <div class="title">V for Vendetta</div>
+            <div class="year">(2005)</div>
+            <div class="rating">ELO: 1877.9</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#68</div>
+            <img src="https://image.tmdb.org/t/p/w185/uS9m8OBk1A8eM9I042bx8XXpqAq.jpg" alt="The Silence of the Lambs" loading="lazy">
+            <div class="title">The Silence of the Lambs</div>
+            <div class="year">(1991)</div>
+            <div class="rating">ELO: 1877.1</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#69</div>
+            <img src="https://image.tmdb.org/t/p/w185/sP27Qm4THyRZyHjHYMfIDtJP6YE.jpg" alt="Paris, Texas" loading="lazy">
+            <div class="title">Paris, Texas</div>
+            <div class="year">(1984)</div>
+            <div class="rating">ELO: 1876.8</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#70</div>
+            <img src="https://image.tmdb.org/t/p/w185/38Xr1JnV1ZcLQ55zmdSp6n475cZ.jpg" alt="Predestination" loading="lazy">
+            <div class="title">Predestination</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 1876.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#71</div>
+            <img src="https://image.tmdb.org/t/p/w185/oqRyO9xrNBRaxqF9pCHHgLuaATx.jpg" alt="The Double Life of Véronique" loading="lazy">
+            <div class="title">The Double Life of Véronique</div>
+            <div class="year">(1991)</div>
+            <div class="rating">ELO: 1874.9</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#72</div>
+            <img src="https://image.tmdb.org/t/p/w185/e1TliRWOdXQ73pRunbpFiGst6Kd.jpg" alt="The Lego Batman Movie" loading="lazy">
+            <div class="title">The Lego Batman Movie</div>
+            <div class="year">(2017)</div>
+            <div class="rating">ELO: 1873.2</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#73</div>
+            <img src="https://image.tmdb.org/t/p/w185/2uSWRTtCG336nuBiG8jOTEUKSy8.jpg" alt="Alien: Romulus" loading="lazy">
+            <div class="title">Alien: Romulus</div>
+            <div class="year">(2024)</div>
+            <div class="rating">ELO: 1872.5</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#74</div>
+            <img src="https://image.tmdb.org/t/p/w185/xMKn6EQS7eR5ubhPJbw5pQSBZMw.jpg" alt="The Assassination of Jesse James by the Coward Robert Ford" loading="lazy">
+            <div class="title">The Assassination of Jesse James by the Coward Robert Ford</div>
+            <div class="year">(2007)</div>
+            <div class="rating">ELO: 1872.3</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#75</div>
+            <img src="https://image.tmdb.org/t/p/w185/46DEYkr96MxzUmdwgmj2U7gWokZ.jpg" alt="The Magician" loading="lazy">
+            <div class="title">The Magician</div>
+            <div class="year">(1958)</div>
+            <div class="rating">ELO: 1872.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#76</div>
+            <img src="https://image.tmdb.org/t/p/w185/3bhkrj58Vtu7enYsRolD1fZdja1.jpg" alt="The Godfather" loading="lazy">
+            <div class="title">The Godfather</div>
+            <div class="year">(1972)</div>
+            <div class="rating">ELO: 1869.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#77</div>
+            <img src="https://image.tmdb.org/t/p/w185/A9VLTtbUfNSyplayHsD5QLuSPT6.jpg" alt="The Double" loading="lazy">
+            <div class="title">The Double</div>
+            <div class="year">(2013)</div>
+            <div class="rating">ELO: 1868.6</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#78</div>
+            <img src="https://image.tmdb.org/t/p/w185/x6rHcQFiYcczLQPrmxXPAicm54E.jpg" alt="Hokum" loading="lazy">
+            <div class="title">Hokum</div>
+            <div class="year">(2026)</div>
+            <div class="rating">ELO: 1868.1</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#79</div>
+            <img src="https://image.tmdb.org/t/p/w185/ts996lKsxvjkO2yiYG0ht4qAicO.jpg" alt="Gone Girl" loading="lazy">
+            <div class="title">Gone Girl</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 1867.3</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#80</div>
+            <img src="https://image.tmdb.org/t/p/w185/ctjEj2xM32OvBXCq8zAdK3ZrsAj.jpg" alt="Catch Me If You Can" loading="lazy">
+            <div class="title">Catch Me If You Can</div>
+            <div class="year">(2002)</div>
+            <div class="rating">ELO: 1867.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#81</div>
+            <img src="https://via.placeholder.com/185x278?text=No+Poster" alt="Over the Garden Wall" loading="lazy">
+            <div class="title">Over the Garden Wall</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 1867.0</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#82</div>
+            <img src="https://image.tmdb.org/t/p/w185/ujERk3aKABXU3NDXOAxEQYTHe9A.jpg" alt="10 Things I Hate About You" loading="lazy">
+            <div class="title">10 Things I Hate About You</div>
+            <div class="year">(1999)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#83</div>
+            <img src="https://image.tmdb.org/t/p/w185/cij4dd21v2Rk2YtUQbV5kW69WB2.jpg" alt="Batman" loading="lazy">
+            <div class="title">Batman</div>
+            <div class="year">(1989)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#84</div>
+            <img src="https://image.tmdb.org/t/p/w185/jexoNYnPd6vVrmygwF6QZmWPFdu.jpg" alt="The Amazing Spider-Man" loading="lazy">
+            <div class="title">The Amazing Spider-Man</div>
+            <div class="year">(2012)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#85</div>
+            <img src="https://image.tmdb.org/t/p/w185/2Touk3m5gzsqr1VsvxypdyHY5ci.jpg" alt="Cars" loading="lazy">
+            <div class="title">Cars</div>
+            <div class="year">(2006)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#86</div>
+            <img src="https://image.tmdb.org/t/p/w185/fnOMP6mjmOmZwmlC1n0K7ivrzt1.jpg" alt="Hacksaw Ridge" loading="lazy">
+            <div class="title">Hacksaw Ridge</div>
+            <div class="year">(2016)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#87</div>
+            <img src="https://image.tmdb.org/t/p/w185/7fn624j5lj3xTme2SgiLCeuedmO.jpg" alt="Whiplash" loading="lazy">
+            <div class="title">Whiplash</div>
+            <div class="year">(2014)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#88</div>
+            <img src="https://image.tmdb.org/t/p/w185/k6zurzegRKsNGMICXZ57VJDUzXO.jpg" alt="Silverado" loading="lazy">
+            <div class="title">Silverado</div>
+            <div class="year">(1985)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#89</div>
+            <img src="https://image.tmdb.org/t/p/w185/tFXcEccSQMf3lfhfXKSU9iRBpa3.jpg" alt="Get Out" loading="lazy">
+            <div class="title">Get Out</div>
+            <div class="year">(2017)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#90</div>
+            <img src="https://image.tmdb.org/t/p/w185/bOVr292mwn3jxr1e0NmUPM1rcjo.jpg" alt="Fantastic Mr. Fox" loading="lazy">
+            <div class="title">Fantastic Mr. Fox</div>
+            <div class="year">(2009)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#91</div>
+            <img src="https://image.tmdb.org/t/p/w185/33wsWxzsNstI8N7dvuwzFmj1qBd.jpg" alt="Three Colours: Blue" loading="lazy">
+            <div class="title">Three Colours: Blue</div>
+            <div class="year">(1993)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#92</div>
+            <img src="https://image.tmdb.org/t/p/w185/vuza0WqY239yBXOadKlGwJsZJFE.jpg" alt="The Truman Show" loading="lazy">
+            <div class="title">The Truman Show</div>
+            <div class="year">(1998)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#93</div>
+            <img src="https://image.tmdb.org/t/p/w185/4yIQq1e6iOcaZ5rLDG3lZBP3j7a.jpg" alt="Moneyball" loading="lazy">
+            <div class="title">Moneyball</div>
+            <div class="year">(2011)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#94</div>
+            <img src="https://image.tmdb.org/t/p/w185/nT97ifVT2J1yMQmeq20Qblg61T.jpg" alt="The Departed" loading="lazy">
+            <div class="title">The Departed</div>
+            <div class="year">(2006)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#95</div>
+            <img src="https://image.tmdb.org/t/p/w185/fjny9chXPx69ln1LMJxbwi5yHMt.jpg" alt="mother!" loading="lazy">
+            <div class="title">mother!</div>
+            <div class="year">(2017)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#96</div>
+            <img src="https://image.tmdb.org/t/p/w185/fa0RDkAlCec0STeMNAhPaF89q6U.jpg" alt="There Will Be Blood" loading="lazy">
+            <div class="title">There Will Be Blood</div>
+            <div class="year">(2007)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#97</div>
+            <img src="https://image.tmdb.org/t/p/w185/tNvKkSnnn4Z6RCBThyK1gfCSSvv.jpg" alt="Dead Poets Society" loading="lazy">
+            <div class="title">Dead Poets Society</div>
+            <div class="year">(1989)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#98</div>
+            <img src="https://via.placeholder.com/185x278?text=No+Poster" alt="First Reformed" loading="lazy">
+            <div class="title">First Reformed</div>
+            <div class="year">(2017)</div>
+            <div class="rating">ELO: 1866.7</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#99</div>
+            <img src="https://image.tmdb.org/t/p/w185/pWDtjs568ZfOTMbURQBYuT4Qxka.jpg" alt="Oldboy" loading="lazy">
+            <div class="title">Oldboy</div>
+            <div class="year">(2003)</div>
+            <div class="rating">ELO: 1859.2</div>
+        </div>
+        
+        <div class="card">
+            <div class="badge">#100</div>
+            <img src="https://image.tmdb.org/t/p/w185/n0ybibhJtQ5icDqTp8eRytcIHJx.jpg" alt="The Social Network" loading="lazy">
+            <div class="title">The Social Network</div>
+            <div class="year">(2010)</div>
+            <div class="rating">ELO: 1856.9</div>
+        </div>
+        
+    </div>
+    
+    <div class="pagination">
+        <span class="btn disabled">← Previous</span>
+        <span class="page-info">Page 1 of 9 (871 Movies Total)</span>
+        <a href="/?page=2" class="btn">Next →</a>
+    </div>
+    
+</body>
+</html>
