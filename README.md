@@ -1,6 +1,4 @@
 # MOVIE ELO & DISTRIBUTION RANKING SYSTEM
-Technical Documentation & Operational Manual
-================================================================================
 
 1. SYSTEM OVERVIEW
 
@@ -148,4 +146,3 @@ Core application settings and visual attributes are defined centrally within con
 * save.csv: Primary persistent database storing Elo ratings, match counts, and entity IDs.
 * poster_cache.json: Local cache storing fetched external media URLs.
 * ratings.csv: Archive of the most recently ingested import dataset.
-================================================================================
