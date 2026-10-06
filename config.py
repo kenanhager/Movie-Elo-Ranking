@@ -70,12 +70,12 @@ TEXT_CONTENT = {
     # Add Movie View
     "add_title": "Add New Movie",
     "add_subtitle": "Enter a title and rating. Elo scales directly with standard normal z-scores!",
-    "add_btn": "🚀 Add Movie & Start Matchups",
+    "add_btn": "Add Movie & Start Matchups",
 
     # Search View
     "search_title": "Search Results",
     "search_placeholder": "Search movie...",
-    "search_btn": "🔍 Search",
+    "search_btn": "Search",
 
     # CSV Management View
     "import_title": "CSV Management",
@@ -88,16 +88,16 @@ TEXT_CONTENT = {
 
 # Standard Normal Distribution Bin Definitions (z-score units)
 NORMAL_BIN_BOUNDS = [
-    (-float("inf"), -2.0, "Bin 1: < -2.0σ (Extreme Low)"),
-    (-2.0, -1.5, "Bin 2: -2.0σ to -1.5σ"),
-    (-1.5, -1.0, "Bin 3: -1.5σ to -1.0σ"),
-    (-1.0, -0.5, "Bin 4: -1.0σ to -0.5σ"),
-    (-0.5, 0.0, "Bin 5: -0.5σ to 0.0σ"),
-    (0.0, 0.5, "Bin 6: 0.0σ to +0.5σ"),
-    (0.5, 1.0, "Bin 7: +0.5σ to +1.0σ"),
-    (1.0, 1.5, "Bin 8: +1.0σ to +1.5σ"),
-    (1.5, 2.0, "Bin 9: +1.5σ to +2.0σ"),
-    (2.0, float("inf"), "Bin 10: >= +2.0σ (Extreme High)"),
+    (-float("inf"), -2.0, "\nBin 1: < -2.0σ"),
+    (-2.0, -1.5, "\n-2.0σ - -1.5σ"),
+    (-1.5, -1.0, "\n-1.5σ - -1.0σ"),
+    (-1.0, -0.5, "\n-1.0σ - -0.5σ"),
+    (-0.5, 0.0, "\n-0.5σ - 0.0σ"),
+    (0.0, 0.5, "\n0.0σ - +0.5σ"),
+    (0.5, 1.0, "\n+0.5σ - +1.0σ"),
+    (1.0, 1.5, "\n+1.0σ - +1.5σ"),
+    (1.5, 2.0, "\n+1.5σ - +2.0σ"),
+    (2.0, float("inf"), "\n>= +2.0σ"),
 ]
 
 

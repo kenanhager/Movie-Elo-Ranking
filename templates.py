@@ -29,7 +29,7 @@ def generate_header_nav(active="rankings", query_val=""):
         <a href="/" class="nav-link {'active' if active == 'rankings' else ''}">Rankings Gallery</a>
         <a href="/vote" class="nav-link {'active' if active == 'vote' else ''}">Match Voting</a>
         <a href="/rank10" class="nav-link {'active' if active == 'rank10' else ''}">Rank 10 Cluster</a>
-        <a href="/add" class="nav-link {'active' if active == 'add' else ''}">+ Add Movie</a>
+        <a href="/add" class="nav-link {'active' if active == 'add' else ''}">Add Movie</a>
         <a href="/stats" class="nav-link {'active' if active == 'stats' else ''}">Distribution Analytics</a>
         <a href="/import" class="nav-link {'active' if active == 'import' else ''}">CSV Management</a>
         <form action="/search" method="GET" class="search-form">
@@ -334,7 +334,7 @@ def generate_vote_html(api_key=TMDB_API_KEY, target_title=None):
         .vote-elo {{ font-size: 14px; color: var(--accent-pink); font-weight: bold; margin-bottom: 15px; }}
         .vs {{ font-size: 28px; font-weight: bold; color: var(--accent-pink); }}
         .vote-btn {{ display: block; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; text-decoration: none; box-sizing: border-box; transition: background 0.2s; }}
-        .btn-left {{ background-color: var(--accent-magenta); color: white; }}
+        .btn-left {{ background-color: var(--accent-blue); color: white; }}
         .btn-left:hover {{ background-color: var(--accent-pink); color: #000; }}
         .btn-right {{ background-color: var(--accent-blue); color: white; }}
         .btn-right:hover {{ background-color: var(--accent-pink); color: #000; }}
@@ -347,7 +347,7 @@ def generate_vote_html(api_key=TMDB_API_KEY, target_title=None):
 </head>
 <body>
     <h1>{TEXT_CONTENT['vote_title']}</h1>
-    <div class="match-info">⚡ Matchup Rating Gap: Δ {elo_diff:.1f} Elo</div>
+    <div class="match-info"> Matchup Rating Gap: Δ {elo_diff:.1f} Elo</div>
     {generate_header_nav("vote")}
     {spotlight_header}
     
@@ -373,7 +373,7 @@ def generate_vote_html(api_key=TMDB_API_KEY, target_title=None):
     </div>
 
     <div class="controls">
-        <a href="/vote?winner=3&m1={m1_enc}&m2={m2_enc}{target_query}" class="btn-tie">🤝 Tie / Draw</a>
+        <a href="/vote?winner=3&m1={m1_enc}&m2={m2_enc}{target_query}" class="btn-tie"> Tie / Draw</a>
         <a href="{skip_query}" class="btn-skip">➡ Skip Matchup</a>
     </div>
 </body>
