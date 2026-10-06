@@ -1,4 +1,4 @@
-MOVIE ELO & DISTRIBUTION RANKING SYSTEM
+# MOVIE ELO & DISTRIBUTION RANKING SYSTEM
 Technical Documentation & Operational Manual
 ================================================================================
 
@@ -58,11 +58,14 @@ each entry to an initial Elo rating utilizing normal distribution parameters:
 
 2. Standard Score ($z$-Score) Calculation:
    Each film's relative positional value is determined via:
+   
    $$z = \frac{r - \mu}{\sigma}$$
+   
    where $r$ represents the film's explicit rating.
 
 3. Linear Elo Mapping:
    The computed $z$-score is linearly transformed to the target Elo scale:
+   
    $$\text{Initial Elo} = \text{DEFAULT\_ELO\_MEAN} + (z \cdot \text{DEFAULT\_ELO\_STD})$$
 
    Default System Parameters (configurable in config.py):
@@ -88,8 +91,8 @@ each entry to an initial Elo rating utilizing normal distribution parameters:
 * Malformed Values: Non-numeric data in rating attributes are intercepted and bypassed safely.
 
 --------------------------------------------------------------------------------
-DATA EXPORT CAPABILITIES
-
+4. DATA EXPORT CAPABILITIES
+--------------------------------------------------------------------------------
 
 Extracted data can be generated via the Data Management endpoint (/import) in the following formats:
 
@@ -99,8 +102,8 @@ Extracted data can be generated via the Data Management endpoint (/import) in th
 * Percentile Scale Output: Ranks items on a continuous 1.0-10.0 scale via the Gaussian cumulative distribution function $\Phi(z)$.
 
 --------------------------------------------------------------------------------
-RANKING & EVALUATION METHODOLOGIES
-
+5. RANKING & EVALUATION METHODOLOGIES
+--------------------------------------------------------------------------------
 
 5.1 Pairwise Match Voting (/vote)
 Executes direct head-to-head comparisons between two entities. Win, loss, or draw 
@@ -116,8 +119,8 @@ Allows manual entry of a new item with a 1-10 score rating. The value is immedia
 converted into a $z$-score and mapped to an appropriate baseline Elo rating.
 
 --------------------------------------------------------------------------------
-STATISTICAL BINS & DISTRIBUTION ANALYTICS
-
+6. STATISTICAL BINS & DISTRIBUTION ANALYTICS
+--------------------------------------------------------------------------------
 
 The Analytics (/stats) and Bin View (/bin) modules partition the database into 10 
 discrete statistical intervals ranging from Bin 1 ($z < -2.0\sigma$) to Bin 10 ($z \ge +2.0\sigma$).
@@ -128,8 +131,8 @@ Supported Partitioning Algorithms:
 3. Minimum Rating Deviation via Dynamic Programming (Method 2): Utilizes an $L_1$ norm minimization algorithm to establish optimal monotonic bin threshold cutoffs.
 
 --------------------------------------------------------------------------------
-CONFIGURATION MATRIX (config.py)
-
+7. CONFIGURATION MATRIX (config.py)
+--------------------------------------------------------------------------------
 
 Core application settings and visual attributes are defined centrally within config.py:
 
@@ -139,9 +142,10 @@ Core application settings and visual attributes are defined centrally within con
 * System Styling: THEME_COLORS (HEX palette definitions) and UI_SIZES (layout dimensions).
 
 --------------------------------------------------------------------------------
-LOCAL PERSISTENCE SPECIFICATIONS
-
+8. LOCAL PERSISTENCE SPECIFICATIONS
+--------------------------------------------------------------------------------
 
 * save.csv: Primary persistent database storing Elo ratings, match counts, and entity IDs.
 * poster_cache.json: Local cache storing fetched external media URLs.
 * ratings.csv: Archive of the most recently ingested import dataset.
+================================================================================
