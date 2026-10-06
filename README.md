@@ -66,7 +66,7 @@ each entry to an initial Elo rating utilizing normal distribution parameters:
 3. Linear Elo Mapping:
    The computed $z$-score is linearly transformed to the target Elo scale:
    
-   Initial Elo = 'DEFUALTELOSTD' + z $\cdot$ 'DEFUALTELOSTD'
+   Initial Elo = 'DEFUALT_ELO_STD' + z $\cdot$ 'DEFUALT_ELO_STD'
 
    Default System Parameters (configurable in config.py):
    * 'DEFAULT_ELO_MEAN' = 1200.0
