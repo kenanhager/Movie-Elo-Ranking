@@ -88,7 +88,7 @@ TEXT_CONTENT = {
 
 # Standard Normal Distribution Bin Definitions (z-score units)
 NORMAL_BIN_BOUNDS = [
-    (-float("inf"), -2.0, "\nBin 1: < -2.0σ"),
+    (-float("inf"), -2.0, "\n< -2.0σ"),
     (-2.0, -1.5, "\n-2.0σ - -1.5σ"),
     (-1.5, -1.0, "\n-1.5σ - -1.0σ"),
     (-1.0, -0.5, "\n-1.0σ - -0.5σ"),
