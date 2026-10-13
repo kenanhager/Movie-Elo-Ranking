@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # --- Server & API Settings ---
-PORT = 8000
+PORT = 5000
 TMDB_API_KEY = "e2c94c95bdc86a424519046697bb28f0"
 CACHE_FILE = "poster_cache.json"
 

@@ -1,9 +1,28 @@
 from collections import Counter
 import math
 import random
+import re
 from config import NORMAL_BIN_BOUNDS
 from state import AppState
 
+
+def parse_title_and_year(title, year=None):
+    """
+    Extracts the base title and release year from a title string or explicit year parameter.
+    Handles titles formatted as 'Movie Title (YYYY)' as well as standalone year inputs.
+    """
+    title_str = str(title).strip()
+    year_str = str(year).strip() if year is not None and str(year).strip() else ""
+
+    match = re.search(r"^(.*?)\s*\((\d{4})\)$", title_str)
+    if match:
+        base_title = match.group(1).strip()
+        if not year_str:
+            year_str = match.group(2)
+    else:
+        base_title = title_str
+
+    return base_title, year_str
 
 def normal_cdf(z):
     """Calculates Cumulative Distribution Function Φ(z) for standard normal distribution."""
@@ -33,14 +52,24 @@ def compute_doc3_methods(movie_list, ratings_map, ratings_list):
         return {}, {}, [0] * 10, [0] * 10
 
     sorted_movies = sorted(movie_list, key=lambda x: x[1], reverse=True)
+    n_movies = len(sorted_movies)
 
-    if not ratings_list:
-        possible_levels = [5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5]
-        ratings_list = possible_levels * (len(sorted_movies) // 10 + 1)
-        ratings_list = ratings_list[: len(sorted_movies)]
+    possible_levels = [5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5]
+    clean_ratings = []
+    for r in ratings_list:
+        try:
+            r_float = float(r)
+            if r_float <= 5.0:
+                clean_ratings.append(round(r_float * 2) / 2)
+        except (ValueError, TypeError):
+            continue
+
+    if not clean_ratings:
+        clean_ratings = possible_levels * (n_movies // 10 + 1)
+        clean_ratings = clean_ratings[:n_movies]
 
     # --- METHOD 1: Preserved Count Distribution ---
-    counts = Counter(ratings_list)
+    counts = Counter(clean_ratings)
     sorted_rating_levels = sorted(counts.keys(), reverse=True)
 
     exact_seq = []
@@ -53,21 +82,27 @@ def compute_doc3_methods(movie_list, ratings_map, ratings_list):
         exact_ratings_map[movie[0].lower()] = assigned
 
     # --- METHOD 2: Minimum Total Rating Deviation (Optimal L1 DP) ---
-    avg_r = sum(ratings_list) / len(ratings_list) if ratings_list else 3.0
+    avg_r = sum(clean_ratings) / len(clean_ratings) if clean_ratings else 3.0
     old_ratings = []
     temp_map = {k: list(v) for k, v in ratings_map.items()}
     for movie in sorted_movies:
-        t_low = movie[0].lower()
-        if t_low in temp_map and temp_map[t_low]:
-            old_ratings.append(temp_map[t_low].pop(0))
+        t_full = movie[0].lower()
+        base_t, _ = parse_title_and_year(movie[0], movie[2] if len(movie) > 2 else "")
+        base_t_low = base_t.lower()
+
+        if t_full in temp_map and temp_map[t_full]:
+            orig = temp_map[t_full].pop(0)
+        elif base_t_low in temp_map and temp_map[base_t_low]:
+            orig = temp_map[base_t_low].pop(0)
         else:
-            old_ratings.append(avg_r)
+            orig = avg_r
 
-    possible_ratings = sorted(list(set(ratings_list)), reverse=True)
+        old_ratings.append(orig)
+
+    possible_ratings = sorted(list(set(clean_ratings)), reverse=True)
     if not possible_ratings:
-        possible_ratings = [5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5]
+        possible_ratings = possible_levels
 
-    n_movies = len(sorted_movies)
     n_levels = len(possible_ratings)
 
     dp = [[float("inf")] * (n_levels + 1) for _ in range(n_movies + 1)]
@@ -84,7 +119,8 @@ def compute_doc3_methods(movie_list, ratings_map, ratings_list):
                 dp[i][j + 1] = curr_cost
                 parent[i][j + 1] = i
 
-            for k in range(i + 1, n_movies + 1):
+            max_span = min(n_movies - i, max(60, int(n_movies * 0.25)))
+            for k in range(i + 1, i + max_span + 1):
                 curr_cost += abs(old_ratings[k - 1] - r_val)
                 if curr_cost < dp[k][j + 1]:
                     dp[k][j + 1] = curr_cost
@@ -102,17 +138,31 @@ def compute_doc3_methods(movie_list, ratings_map, ratings_list):
     for idx, movie in enumerate(sorted_movies):
         optimal_ratings_map[movie[0].lower()] = optimal_seq[idx]
 
+    # Override with exact values directly imported from CSV columns
+    for movie in sorted_movies:
+        t_low = movie[0].lower()
+        base_t, _ = parse_title_and_year(movie[0], movie[2] if len(movie) > 2 else "")
+        base_low = base_t.lower()
+
+        imported = AppState.imported_methods.get(t_low) or AppState.imported_methods.get(base_low)
+        if imported:
+            m1_val, m2_val = imported
+            if m1_val is not None:
+                exact_ratings_map[t_low] = m1_val
+            if m2_val is not None:
+                optimal_ratings_map[t_low] = m2_val
+
     exact_bin_counts = [0] * 10
     optimal_bin_counts = [0] * 10
 
-    for r in exact_seq[:n_movies]:
-        exact_bin_counts[rating_to_bin_idx(r)] += 1
-
-    for r in optimal_seq:
-        optimal_bin_counts[rating_to_bin_idx(r)] += 1
+    for movie in sorted_movies:
+        t_low = movie[0].lower()
+        r_m1 = exact_ratings_map.get(t_low, 3.0)
+        r_m2 = optimal_ratings_map.get(t_low, 3.0)
+        exact_bin_counts[rating_to_bin_idx(r_m1)] += 1
+        optimal_bin_counts[rating_to_bin_idx(r_m2)] += 1
 
     return exact_ratings_map, optimal_ratings_map, exact_bin_counts, optimal_bin_counts
-
 
 def get_elo_matched_pair(movie_list, target_movie=None, proximity_ratio=0.75):
     if len(movie_list) < 2:

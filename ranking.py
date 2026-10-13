@@ -5,9 +5,9 @@ import os
 import socketserver
 from urllib.parse import parse_qs, urlparse
 import requests
+from config import *
 
-TMDB_API_KEY = "e2c94c95bdc86a424519046697bb28f0"  # Replace with your TMDB API Key
-PORT = 8000
+
 POSTER_CACHE = {}
 movie_elo = []
 

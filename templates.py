@@ -851,11 +851,13 @@ def generate_import_html(message=""):
         .card p {{ color: var(--text-secondary); font-size: 14px; line-height: 1.5; }}
         .btn {{ display: inline-block; padding: 10px 20px; background: var(--accent-magenta); color: #fff; text-decoration: none; border-radius: 8px; border: none; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; }}
         .btn:hover {{ background: var(--accent-pink); color: #000; }}
-        .btn-export {{ background: var(--accent-blue); color: #fff; width: 100%; margin-top: 5px; }}
+        .btn-export {{ background: var(--accent-magenta); color: #fff; width: 100%; margin-top: 5px; }}
         .btn-export:hover {{ background: var(--accent-pink); color: #000; }}
         select {{ width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); font-size: 14px; outline: none; margin-bottom: 15px; }}
         input[type="file"] {{ margin: 15px 0; display: block; color: var(--text-secondary); font-size: 14px; }}
         .status-msg {{ padding: 12px 15px; background: var(--accent-dark-plum); border: 1px solid var(--accent-pink); color: #ffffff; margin-bottom: 25px; border-radius: 8px; text-align: center; font-size: 14px; }}
+        .export-box {{ margin-bottom: 20px; padding: 15px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }}
+        .export-box h3 {{ margin-top: 0; font-size: 16px; margin-bottom: 6px; }}
     </style>
 </head>
 <body>
@@ -868,19 +870,30 @@ def generate_import_html(message=""):
 
         <div class="card">
             <h2>Export Database Ratings</h2>
-            <p>Select your preferred rating scale format and download your full movie database as a CSV file.</p>
-            <form action="/export" method="GET">
-                <label for="scale" style="display: block; font-weight: bold; color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">Select Scale for Export:</label>
-                <select id="scale" name="scale">
-                    <option value="elo">Raw Elo Rating Scale (e.g. ~1200 Baseline)</option>
-                    <option value="zscore">Standard Normal Z-Score Scale (σ Units)</option>
-                    <option value="exact">5-Star Scale (Method 1: Preserved Count Distribution)</option>
-                    <option value="optimal">5-Star Scale (Method 2: Optimal L1 DP Cutoffs)</option>
-                    <option value="scale10">10-Point Percentile Scale (1.0 to 10.0)</option>
-                    <option value="star5">5-Star Percentile Scale (0.5 to 5.0)</option>
-                </select>
-                <button type="submit" class="btn btn-export">📥 Download Exported CSV</button>
-            </form>
+
+            <div class="export-box">
+                <h3 style="color: var(--accent-pink);">1. elo_data</h3>
+                <p style="font-size: 13px; margin-bottom: 12px;">Export full analytics database including Elo ratings, Z-Scores, and ratings for <strong>all three distribution methods</strong> in every export.</p>
+                <form action="/export" method="GET">
+                    <input type="hidden" name="type" value="elo_data">
+                    <button type="submit" class="btn btn-export">📥 Download 1. elo_data.csv</button>
+                </form>
+            </div>
+
+            <div class="export-box">
+                <h3 style="color: var(--accent-blue);">2. Letterboxd data</h3>
+                <p style="font-size: 13px; margin-bottom: 12px;">Export standard Letterboxd format (<code>Date,Name,Year,Letterboxd URI,Rating</code>). Select which method to output in the rating column:</p>
+                <form action="/export" method="GET">
+                    <input type="hidden" name="type" value="letterboxd">
+                    <label for="method" style="display: block; font-weight: bold; color: var(--text-secondary); font-size: 13px; margin-bottom: 6px;">Select Rating Method:</label>
+                    <select id="method" name="method">
+                        <option value="norm">Standard Normal Bin Scale (Bin 7 = 3.5★, Bin 2 = 1.0★)</option>
+                        <option value="exact">Method 1: Preserved Count Distribution</option>
+                        <option value="optimal">Method 2: Optimal L1 DP Cutoffs</option>
+                    </select>
+                    <button type="submit" class="btn btn-export" style="background: var(--accent-blue);">📥 Download 2. Letterboxd_data.csv</button>
+                </form>
+            </div>
         </div>
 
         <div class="card">

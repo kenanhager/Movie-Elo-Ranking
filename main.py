@@ -135,11 +135,18 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             self._send_html(html)
 
         elif path == "/export":
-            scale = params.get("scale", ["elo"])[0]
-            csv_data = generate_export_csv(scale=scale)
+            export_type = params.get("type", ["elo_data"])[0]
+            method = params.get("method", ["norm"])[0]
+            csv_data = generate_export_csv(export_type=export_type, method=method)
+
+            if export_type == "letterboxd":
+                filename = "letterboxd_data.csv"
+            else:
+                filename = "elo_data.csv"
+
             self.send_response(200)
             self.send_header("Content-type", "text/csv; charset=utf-8")
-            self.send_header("Content-Disposition", f'attachment; filename="movie_ratings_export_{scale}.csv"')
+            self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
             self.end_headers()
             self.wfile.write(csv_data.encode("utf-8"))
 
