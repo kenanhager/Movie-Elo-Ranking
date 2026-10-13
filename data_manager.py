@@ -7,11 +7,31 @@ import os
 import re
 from elopy import Implementation
 import requests
+from collections import Counter
 
 from config import CACHE_FILE, DEFAULT_ELO_MEAN, DEFAULT_ELO_STD, TMDB_API_KEY
 from elo_engine import compute_doc3_methods, get_normal_bin_info, normal_cdf
 from state import AppState
 
+
+
+def parse_title_and_year(title, year=None):
+    """
+    Extracts the base title and release year from a title string or explicit year parameter.
+    Handles titles formatted as 'Movie Title (YYYY)' as well as standalone year inputs.
+    """
+    title_str = str(title).strip()
+    year_str = str(year).strip() if year is not None and str(year).strip() else ""
+
+    match = re.search(r"^(.*?)\s*\((\d{4})\)$", title_str)
+    if match:
+        base_title = match.group(1).strip()
+        if not year_str:
+            year_str = match.group(2)
+    else:
+        base_title = title_str
+
+    return base_title, year_str
 
 def load_poster_cache():
     if os.path.exists(CACHE_FILE):
@@ -22,6 +42,44 @@ def load_poster_cache():
         except Exception as e:
             print(f"Error loading poster cache: {e}")
 
+def get_existing_movie_identities(movie_list=None):
+    """
+    Returns a set of (base_title_lower, year_str) tuples representing existing movies in the DB.
+    """
+    if movie_list is None:
+        movie_list = AppState.movie_elo
+
+    identities = set()
+    for m in movie_list:
+        m_title = m[0]
+        m_year = m[2] if len(m) > 2 else ""
+        base_title, year_str = parse_title_and_year(m_title, m_year)
+        identities.add((base_title.lower(), str(year_str).strip()))
+    return identities
+
+def is_duplicate_movie(title, year, existing_identities):
+    """
+    Checks whether a movie title/year combination already exists in the database.
+    """
+    base_title, year_str = parse_title_and_year(title, year)
+    base_lower = base_title.lower()
+    year_str = str(year_str).strip()
+
+    # 1. Exact match on (base_title, year)
+    if (base_lower, year_str) in existing_identities:
+        return True
+
+    # 2. If incoming has a year, check if existing entry has base_title without a year
+    if year_str and (base_lower, "") in existing_identities:
+        return True
+
+    # 3. If incoming has no year, check if base_title exists under any year
+    if not year_str:
+        for ex_title, ex_year in existing_identities:
+            if ex_title == base_lower:
+                return True
+
+    return False
 
 def save_poster_cache():
     try:
@@ -65,10 +123,37 @@ def get_movie_original_ratings():
             print(f"Error reading original ratings: {e}")
     return ratings_map, ratings_list
 
+def disambiguate_titles(entries):
+    """
+    Appends '(Year)' to movie names ONLY if there are multiple movies 
+    sharing the same base title. Single/unique titles remain unchanged.
+    """
+    base_counts = Counter()
+    parsed_entries = []
+
+    for item in entries:
+        title = item[0].strip()
+        val = item[1]
+        year = item[2] if len(item) > 2 else ""
+        base_title, year_str = parse_title_and_year(title, year)
+        if base_title:
+            base_counts[base_title.lower()] += 1
+        parsed_entries.append((title, val, year_str, base_title))
+
+    result = []
+    for title, val, year_str, base_title in parsed_entries:
+        if base_counts[base_title.lower()] > 1 and year_str:
+            new_title = f"{base_title} ({year_str})"
+        else:
+            new_title = base_title
+
+        result.append([new_title, val, year_str])
+    return result
+
 
 def load_initial_data():
     AppState.movie_elo = []
-    existing_titles = set()
+    raw_entries = []
 
     if os.path.exists("save.csv"):
         print("Loading saved ELO ratings from save.csv...")
@@ -76,14 +161,14 @@ def load_initial_data():
             read = csv.reader(file)
             for row in read:
                 if len(row) >= 2:
-                    title = row[0]
+                    title = row[0].strip()
                     rating = float(row[1]) if row[1] else DEFAULT_ELO_MEAN
                     date = int(row[2]) if len(row) > 2 and row[2] else ""
-                    AppState.movie_elo.append([title, rating, date])
-                    existing_titles.add(title)
+                    raw_entries.append([title, rating, date])
 
     if os.path.exists("ratings.csv"):
         print("Syncing ratings.csv via standard normal distribution scaling...")
+        existing_keys = {m[0].lower() for m in raw_entries}
         rows_to_process = []
         ratings_list = []
         with open("ratings.csv", "r", newline="", encoding="utf-8") as file:
@@ -91,15 +176,14 @@ def load_initial_data():
             next(read, None)
             for row in read:
                 if len(row) > 4:
-                    title = row[1]
-                    if title not in existing_titles:
-                        try:
-                            r_val = float(row[4])
-                            date = int(row[2]) if row[2] else ""
-                            rows_to_process.append((title, r_val, date))
-                            ratings_list.append(r_val)
-                        except ValueError:
-                            continue
+                    title = row[1].strip()
+                    # Replace line 119 with:
+                    raw_val = row[4].strip() if len(row) > 4 else ""
+                    r_val = float(raw_val) if raw_val else 1500.0  # Replace 1500.0 with your default initial Elo
+                    date = int(row[2]) if row[2] else ""
+                    if title.lower() not in existing_keys:
+                        rows_to_process.append([title, r_val, date])
+                        ratings_list.append(r_val)
 
         if ratings_list:
             r_mean = sum(ratings_list) / len(ratings_list)
@@ -109,8 +193,9 @@ def load_initial_data():
             for title, r_val, date in rows_to_process:
                 z = (r_val - r_mean) / r_std
                 scaled_rating = DEFAULT_ELO_MEAN + (z * DEFAULT_ELO_STD)
-                AppState.movie_elo.append([title, scaled_rating, date])
-                existing_titles.add(title)
+                raw_entries.append([title, scaled_rating, date])
+
+    AppState.movie_elo = disambiguate_titles(raw_entries)
 
     AppState.elo = Implementation()
     for item in AppState.movie_elo:
@@ -305,7 +390,7 @@ def generate_export_csv(scale="elo"):
 
 
 def process_ratings_csv_data(csv_text_data):
-    existing_titles = {m[0].lower() for m in AppState.movie_elo}
+    existing_identities = get_existing_movie_identities(AppState.movie_elo)
     rows_to_process = []
     ratings_list = []
 
@@ -320,9 +405,11 @@ def process_ratings_csv_data(csv_text_data):
             r_val = float(first_row[4])
             t_title = first_row[1].strip()
             y_val = int(first_row[2]) if first_row[2].isdigit() else ""
-            if t_title.lower() not in existing_titles:
+            if t_title and not is_duplicate_movie(t_title, y_val, existing_identities):
                 rows_to_process.append((t_title, r_val, y_val))
                 ratings_list.append(r_val)
+                base_t, y_s = parse_title_and_year(t_title, y_val)
+                existing_identities.add((base_t.lower(), str(y_s).strip()))
         except ValueError:
             pass
 
@@ -331,17 +418,19 @@ def process_ratings_csv_data(csv_text_data):
             title = row[1].strip()
             if not title:
                 continue
-            if title.lower() not in existing_titles:
+            year = int(row[2]) if row[2].isdigit() else ""
+            if not is_duplicate_movie(title, year, existing_identities):
                 try:
                     r_val = float(row[4])
-                    year = int(row[2]) if row[2].isdigit() else ""
                     rows_to_process.append((title, r_val, year))
                     ratings_list.append(r_val)
+                    base_t, y_s = parse_title_and_year(title, year)
+                    existing_identities.add((base_t.lower(), str(y_s).strip()))
                 except ValueError:
                     continue
 
     if not rows_to_process:
-        return 0, len(existing_titles)
+        return 0, len(AppState.movie_elo)
 
     if len(ratings_list) > 1:
         r_mean = sum(ratings_list) / len(ratings_list)
@@ -352,15 +441,18 @@ def process_ratings_csv_data(csv_text_data):
 
     added_count = 0
     for title, r_val, date in rows_to_process:
-        if title.lower() not in existing_titles:
-            z = (r_val - r_mean) / r_std
-            scaled_rating = DEFAULT_ELO_MEAN + (z * DEFAULT_ELO_STD)
+        z = (r_val - r_mean) / r_std if r_std else 0.0
+        scaled_rating = DEFAULT_ELO_MEAN + (z * DEFAULT_ELO_STD)
 
-            AppState.movie_elo.append([title, scaled_rating, date])
-            AppState.elo.addPlayer(title, rating=scaled_rating)
-            existing_titles.add(title.lower())
-            added_count += 1
+        AppState.movie_elo.append([title, scaled_rating, date])
+        added_count += 1
+
+    AppState.movie_elo = disambiguate_titles(AppState.movie_elo)
+
+    AppState.elo = Implementation()
+    for item in AppState.movie_elo:
+        AppState.elo.addPlayer(item[0], rating=item[1])
 
     save_to_csv()
     append_to_ratings_csv(rows_to_process)
-    return added_count, len(existing_titles) - added_count
+    return added_count, len(AppState.movie_elo) - added_count

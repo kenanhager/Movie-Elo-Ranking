@@ -3,12 +3,16 @@ from http.server import ThreadingHTTPServer
 import math
 from urllib.parse import parse_qs, urlparse
 import webbrowser
+from elopy import Implementation
 
 from config import DEFAULT_ELO_MEAN, DEFAULT_ELO_STD, PORT
 from data_manager import (
     append_to_ratings_csv,
+    disambiguate_titles,
     generate_export_csv,
+    get_existing_movie_identities,
     get_movie_original_ratings,
+    is_duplicate_movie,
     load_initial_data,
     load_poster_cache,
     process_ratings_csv_data,
@@ -27,6 +31,7 @@ from templates import (
     generate_stats_html,
     generate_vote_html,
 )
+
 
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -96,25 +101,31 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             year_val = params.get("year", [""])[0]
 
             if title and rating_val:
-                append_to_ratings_csv([(title, rating_val, year_val)])
-                try:
-                    r_float = float(rating_val)
-                    _, ratings_list = get_movie_original_ratings()
-                    if ratings_list:
-                        r_mean = sum(ratings_list) / len(ratings_list)
-                        r_var = sum((r - r_mean) ** 2 for r in ratings_list) / len(ratings_list)
-                        r_std = math.sqrt(r_var) if r_var > 0 else 1.0
-                    else:
-                        r_mean, r_std = 7.0, 1.5
+                existing_identities = get_existing_movie_identities(AppState.movie_elo)
+                if not is_duplicate_movie(title, year_val, existing_identities):
+                    append_to_ratings_csv([(title, rating_val, year_val)])
+                    try:
+                        r_float = float(rating_val)
+                        _, ratings_list = get_movie_original_ratings()
+                        if ratings_list:
+                            r_mean = sum(ratings_list) / len(ratings_list)
+                            r_var = sum((r - r_mean) ** 2 for r in ratings_list) / len(ratings_list)
+                            r_std = math.sqrt(r_var) if r_var > 0 else 1.0
+                        else:
+                            r_mean, r_std = 7.0, 1.5
 
-                    z = (r_float - r_mean) / r_std if r_std else 0.0
-                    scaled_elo = DEFAULT_ELO_MEAN + (z * DEFAULT_ELO_STD)
+                        z = (r_float - r_mean) / r_std if r_std else 0.0
+                        scaled_elo = DEFAULT_ELO_MEAN + (z * DEFAULT_ELO_STD)
 
-                    AppState.movie_elo.append([title, scaled_elo, year_val])
-                    AppState.elo.addPlayer(title, rating=scaled_elo)
-                    save_to_csv()
-                except Exception as e:
-                    print(f"Error adding movie: {e}")
+                        AppState.movie_elo.append([title, scaled_elo, year_val])
+                        AppState.movie_elo = disambiguate_titles(AppState.movie_elo)
+
+                        AppState.elo = Implementation()
+                        for item in AppState.movie_elo:
+                            AppState.elo.addPlayer(item[0], rating=item[1])
+                        save_to_csv()
+                    except Exception as e:
+                        print(f"Error adding movie: {e}")
 
             html = generate_add_html()
             self._send_html(html)
