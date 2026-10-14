@@ -11,7 +11,7 @@ from config import *
 POSTER_CACHE = {}
 movie_elo = []
 
-# Load movies from CSV
+
 with open("save.csv", "r", newline="", encoding="utf-8") as file:
   read = csv.reader(file)
   for row in read:
@@ -92,7 +92,7 @@ def generate_gallery(movies_data, api_key, page=1, per_page=100):
         </div>
         """
 
-  # Navigation Buttons
+
   prev_btn = (
       f'<a href="/?page={page - 1}" class="btn">← Previous</a>'
       if page > 1
@@ -120,41 +120,41 @@ def generate_gallery(movies_data, api_key, page=1, per_page=100):
         body {{ font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; margin: 0; }}
         h1 {{ text-align: center; margin-bottom: 10px; }}
         .grid {{ display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }}
-        .card {{ 
-            position: relative; 
-            background: #1e1e1e; 
-            padding: 10px; 
-            border-radius: 8px; 
-            width: 185px; 
-            text-align: center; 
+        .card {{
+            position: relative;
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 8px;
+            width: 185px;
+            text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             transition: transform 0.2s ease;
         }}
         .card:hover {{ transform: translateY(-5px); }}
-        .badge {{ 
-            position: absolute; 
-            top: 15px; 
-            left: 15px; 
-            background: rgba(0, 0, 0, 0.85); 
-            color: #ffcc00; 
-            font-weight: bold; 
-            font-size: 13px; 
-            padding: 4px 8px; 
-            border-radius: 4px; 
-            border: 1px solid #ffcc00; 
+        .badge {{
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #ffcc00;
             z-index: 2;
         }}
         .card img {{ width: 100%; height: 278px; object-fit: cover; border-radius: 4px; }}
         .title {{ font-size: 14px; font-weight: bold; margin-top: 8px; word-wrap: break-word; }}
         .rating {{ font-size: 12px; color: #aaaaaa; margin-top: 4px; }}
         .pagination {{ display: flex; justify-content: center; align-items: center; gap: 15px; margin: 25px 0; }}
-        .btn {{ 
-            padding: 8px 16px; 
-            border-radius: 5px; 
-            text-decoration: none; 
-            font-weight: bold; 
-            background-color: #007bff; 
-            color: white; 
+        .btn {{
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
             transition: background 0.2s;
         }}
         .btn:hover:not(.disabled) {{ background-color: #0056b3; }}
@@ -201,7 +201,7 @@ class GalleryRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-  # Sort descending by ELO rating so #1 is the top rank
+
   movie_elo.sort(key=lambda x: x[1], reverse=True)
 
   api_key = (
@@ -209,12 +209,12 @@ if __name__ == "__main__":
       or TMDB_API_KEY
   )
 
-  # Write initial page 1 index.html
+
   initial_html = generate_gallery(movie_elo, api_key, page=1, per_page=100)
   with open("index.html", "w", encoding="utf-8") as f:
     f.write(initial_html)
 
-  # Configure custom HTTP request handler
+
   GalleryRequestHandler.movies_data = movie_elo
   GalleryRequestHandler.api_key = api_key
 

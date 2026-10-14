@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 import csv
 import io
 import json
@@ -17,6 +16,7 @@ from elo_engine import (
     parse_title_and_year,
 )
 from state import AppState
+from posters import get_custom_poster, load_poster_cache, save_poster_cache, get_poster_url, prefetch_posters, reset_custom_poster
 
 _RATINGS_CACHE = None
 METHOD_CACHE_FILE = "method_ratings.json"
@@ -80,16 +80,6 @@ def get_movie_original_ratings():
     return _RATINGS_CACHE
 
 
-def load_poster_cache():
-    if os.path.exists(CACHE_FILE):
-        try:
-            with open(CACHE_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                AppState.poster_cache = {tuple(k.split("|||")): v for k, v in data.items()}
-        except Exception as e:
-            print(f"Error loading poster cache: {e}")
-
-
 def get_existing_movie_identities(movie_list=None):
     if movie_list is None:
         movie_list = AppState.movie_elo
@@ -122,15 +112,6 @@ def is_duplicate_movie(title, year, existing_identities):
     return False
 
 
-def save_poster_cache():
-    try:
-        data = {f"{k[0]}|||{k[1]}": v for k, v in AppState.poster_cache.items()}
-        with open(CACHE_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    except Exception as e:
-        print(f"Error saving poster cache: {e}")
-
-
 def disambiguate_titles(entries):
     base_counts = Counter()
     parsed_entries = []
@@ -156,7 +137,7 @@ def disambiguate_titles(entries):
 
 
 def load_initial_data():
-    load_method_cache()  # FIX: Load method cache on app startup
+    load_method_cache()
     AppState.movie_elo = []
     raw_entries = []
 
@@ -215,9 +196,10 @@ def save_to_csv():
 
     AppState.movie_elo.sort(key=lambda x: x[1], reverse=True)
 
-    with open("save.csv", "w", newline="", encoding="utf-8") as file:
+    with open(".save.csv.tmp", "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerows(AppState.movie_elo)
+    os.replace('.save.csv.tmp', 'save.csv')
 
 
 def append_to_ratings_csv(rows):
@@ -241,9 +223,13 @@ def remove_movie_from_db(title):
     base_t, _ = parse_title_and_year(title)
     base_low = base_t.lower()
 
+    removed = next((movie for movie in AppState.movie_elo if movie[0].lower() == title_low), None)
+    if removed and get_custom_poster(removed[0], removed[2]):
+        reset_custom_poster(removed[0], removed[2])
+
     AppState.movie_elo = [m for m in AppState.movie_elo if m[0].lower() != title_low]
 
-    # FIX: Purge imported method entries for deleted movie
+
     AppState.imported_methods.pop(title_low, None)
     AppState.imported_methods.pop(base_low, None)
     save_method_cache()
@@ -270,79 +256,6 @@ def remove_movie_from_db(title):
             _RATINGS_CACHE = None
         except Exception as e:
             print(f"Error updating ratings.csv on delete: {e}")
-
-
-def get_poster_url(movie_title, api_key, release_year=None):
-    title = str(movie_title).strip()
-    year_str = str(release_year)[:4] if release_year and str(release_year).strip() else None
-
-    match = re.search(r"^(.*?)\s*\((\d{4})\)$", title)
-    if match:
-        extracted_title = match.group(1).strip()
-        extracted_year = match.group(2)
-        if extracted_title:
-            title = extracted_title
-        if not year_str:
-            year_str = extracted_year
-
-    cache_key = (title.lower(), year_str)
-    if cache_key in AppState.poster_cache:
-        return AppState.poster_cache[cache_key]
-
-    url = "https://api.themoviedb.org/3/search/movie"
-    params = {"api_key": api_key, "query": title}
-    if year_str:
-        params["primary_release_year"] = year_str
-
-    fallback_url = "https://via.placeholder.com/185x278?text=No+Poster"
-
-    try:
-        if api_key:
-            res = requests.get(url, params=params, timeout=1.5).json()
-            results = res.get("results", [])
-            target_clean = title.lower().strip()
-
-            for movie in results:
-                m_title = movie.get("title", "").lower().strip()
-                m_orig = movie.get("original_title", "").lower().strip()
-                if (m_title == target_clean or m_orig == target_clean) and movie.get("poster_path"):
-                    poster_url = f"https://image.tmdb.org/t/p/w185{movie['poster_path']}"
-                    AppState.poster_cache[cache_key] = poster_url
-                    return poster_url
-
-            for movie in results:
-                if movie.get("poster_path"):
-                    poster_url = f"https://image.tmdb.org/t/p/w185{movie['poster_path']}"
-                    AppState.poster_cache[cache_key] = poster_url
-                    return poster_url
-    except Exception as e:
-        print(f"Error fetching {title} ({year_str}): {e}")
-
-    AppState.poster_cache[cache_key] = fallback_url
-    return fallback_url
-
-
-def prefetch_posters(movie_list, api_key):
-    if not api_key:
-        return
-    uncached = []
-    for item in movie_list:
-        title = str(item[0]).strip()
-        year_str = str(item[2])[:4] if len(item) > 2 and item[2] else None
-        match = re.search(r"^(.*?)\s*\((\d{4})\)$", title)
-        if match:
-            title = match.group(1).strip() or title
-            year_str = year_str or match.group(2)
-
-        if (title.lower(), year_str) not in AppState.poster_cache:
-            uncached.append((item[0], item[2] if len(item) > 2 else None))
-
-    if uncached:
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [executor.submit(get_poster_url, m[0], api_key, m[1]) for m in uncached]
-            for future in futures:
-                future.result()
-        save_poster_cache()
 
 
 def generate_export_csv(export_type="elo_data", method="norm"):

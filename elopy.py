@@ -21,7 +21,7 @@ class Implementation:
     def recordMatch(self, player1, player2, winner=None, draw=False):
         """
         Updates ratings for player1 and player2 based on match outcome.
-        
+
         :param player1: Name of the first player
         :param player2: Name of the second player
         :param winner: Name of the winning player (if draw is False)
@@ -35,11 +35,11 @@ class Implementation:
         r1 = self.players[player1]
         r2 = self.players[player2]
 
-        # Calculate expected scores
+
         e1 = 1 / (1 + 10 ** ((r2 - r1) / 400))
         e2 = 1 / (1 + 10 ** ((r1 - r2) / 400))
 
-        # Determine actual scores
+
         if draw:
             s1, s2 = 0.5, 0.5
         elif winner == player1:
@@ -49,6 +49,6 @@ class Implementation:
         else:
             raise ValueError(f"Winner must be '{player1}' or '{player2}' when draw is False")
 
-        # Update and store new ratings
+
         self.players[player1] = r1 + self.k_factor * (s1 - e1)
         self.players[player2] = r2 + self.k_factor * (s2 - e2)

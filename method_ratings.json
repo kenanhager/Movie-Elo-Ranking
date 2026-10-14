@@ -1,2 +1,3610 @@
 {
+  "persona": [
+    5.0,
+    5.0
+  ],
+  "inception": [
+    5.0,
+    5.0
+  ],
+  "the matrix": [
+    5.0,
+    5.0
+  ],
+  "the empire strikes back": [
+    5.0,
+    5.0
+  ],
+  "star wars: episode ii \u2013\u00a0attack of the clones": [
+    5.0,
+    5.0
+  ],
+  "badlands": [
+    5.0,
+    5.0
+  ],
+  "solaris": [
+    5.0,
+    5.0
+  ],
+  "spider-man: into the spider-verse": [
+    5.0,
+    5.0
+  ],
+  "american history x": [
+    5.0,
+    5.0
+  ],
+  "the lord of the rings: the two towers": [
+    5.0,
+    5.0
+  ],
+  "three colours: red": [
+    5.0,
+    5.0
+  ],
+  "spider-man: across the spider-verse": [
+    5.0,
+    5.0
+  ],
+  "dune: part two": [
+    5.0,
+    5.0
+  ],
+  "tenet": [
+    5.0,
+    5.0
+  ],
+  "triangle": [
+    5.0,
+    5.0
+  ],
+  "scream": [
+    5.0,
+    5.0
+  ],
+  "the princess bride": [
+    5.0,
+    5.0
+  ],
+  "stoker": [
+    5.0,
+    5.0
+  ],
+  "inland empire": [
+    5.0,
+    5.0
+  ],
+  "parasite": [
+    5.0,
+    5.0
+  ],
+  "rocky": [
+    5.0,
+    5.0
+  ],
+  "the lego movie": [
+    5.0,
+    5.0
+  ],
+  "the shawshank redemption": [
+    5.0,
+    5.0
+  ],
+  "alien": [
+    5.0,
+    5.0
+  ],
+  "se7en": [
+    5.0,
+    5.0
+  ],
+  "eternal sunshine of the spotless mind": [
+    5.0,
+    5.0
+  ],
+  "spider-man 3": [
+    5.0,
+    5.0
+  ],
+  "the lord of the rings: the fellowship of the ring": [
+    5.0,
+    5.0
+  ],
+  "12 angry men": [
+    5.0,
+    5.0
+  ],
+  "the lord of the rings: the return of the king": [
+    5.0,
+    5.0
+  ],
+  "gladiator": [
+    5.0,
+    5.0
+  ],
+  "the batman": [
+    5.0,
+    5.0
+  ],
+  "rogue one: a star wars story": [
+    5.0,
+    5.0
+  ],
+  "tombstone": [
+    5.0,
+    5.0
+  ],
+  "napoleon dynamite": [
+    5.0,
+    5.0
+  ],
+  "mother!": [
+    5.0,
+    5.0
+  ],
+  "blind chance": [
+    5.0,
+    5.0
+  ],
+  "shutter island": [
+    5.0,
+    5.0
+  ],
+  "top gun: maverick": [
+    5.0,
+    5.0
+  ],
+  "annie hall": [
+    5.0,
+    4.5
+  ],
+  "the double": [
+    5.0,
+    4.5
+  ],
+  "barry lyndon": [
+    5.0,
+    4.5
+  ],
+  "there will be blood": [
+    4.5,
+    4.5
+  ],
+  "predestination": [
+    4.5,
+    4.5
+  ],
+  "mission: impossible": [
+    4.5,
+    4.5
+  ],
+  "the truman show": [
+    4.5,
+    4.5
+  ],
+  "catch me if you can": [
+    4.5,
+    4.5
+  ],
+  "x-men: days of future past": [
+    4.5,
+    4.5
+  ],
+  "the discreet charm of the bourgeoisie": [
+    4.5,
+    4.5
+  ],
+  "get out": [
+    4.5,
+    4.5
+  ],
+  "the dark knight": [
+    4.5,
+    4.5
+  ],
+  "the usual suspects": [
+    4.5,
+    4.5
+  ],
+  "paris, texas": [
+    4.5,
+    4.5
+  ],
+  "3 women": [
+    4.5,
+    4.5
+  ],
+  "cars": [
+    4.5,
+    4.5
+  ],
+  "the assassination of jesse james by the coward robert ford": [
+    4.5,
+    4.5
+  ],
+  "perfect blue": [
+    4.5,
+    4.5
+  ],
+  "marty supreme": [
+    4.5,
+    4.5
+  ],
+  "no country for old men": [
+    4.5,
+    4.5
+  ],
+  "over the garden wall": [
+    4.5,
+    4.5
+  ],
+  "three colours: blue": [
+    4.5,
+    4.5
+  ],
+  "hacksaw ridge": [
+    4.5,
+    4.5
+  ],
+  "star wars": [
+    4.5,
+    4.5
+  ],
+  "star wars: episode iii \u2013\u00a0revenge of the sith": [
+    4.5,
+    4.5
+  ],
+  "hokum": [
+    4.5,
+    4.5
+  ],
+  "gone girl": [
+    4.5,
+    4.5
+  ],
+  "first reformed": [
+    4.5,
+    4.5
+  ],
+  "birdman or (the unexpected virtue of ignorance)": [
+    4.5,
+    4.5
+  ],
+  "the silence of the lambs": [
+    4.5,
+    4.5
+  ],
+  "tenebre": [
+    4.5,
+    4.5
+  ],
+  "prisoners": [
+    4.5,
+    4.5
+  ],
+  "cloverfield": [
+    4.5,
+    4.5
+  ],
+  "jerry maguire": [
+    4.5,
+    4.5
+  ],
+  "the departed": [
+    4.5,
+    4.5
+  ],
+  "psycho": [
+    4.5,
+    4.5
+  ],
+  "the social network": [
+    4.5,
+    4.5
+  ],
+  "pirates of the caribbean: the curse of the black pearl": [
+    4.5,
+    4.5
+  ],
+  "autumn sonata": [
+    4.5,
+    4.5
+  ],
+  "alien: romulus": [
+    4.5,
+    4.5
+  ],
+  "10 things i hate about you": [
+    4.5,
+    4.5
+  ],
+  "suspiria": [
+    4.5,
+    4.5
+  ],
+  "whiplash": [
+    4.5,
+    4.5
+  ],
+  "braveheart": [
+    4.5,
+    4.5
+  ],
+  "oppenheimer": [
+    4.5,
+    4.5
+  ],
+  "the lego batman movie": [
+    4.5,
+    4.5
+  ],
+  "upstream color": [
+    4.5,
+    4.5
+  ],
+  "the count of monte cristo": [
+    4.5,
+    4.5
+  ],
+  "dr. strangelove or: how i learned to stop worrying and love the bomb": [
+    4.5,
+    4.5
+  ],
+  "decision to leave": [
+    4.5,
+    4.5
+  ],
+  "the prestige": [
+    4.5,
+    4.5
+  ],
+  "return of the jedi": [
+    4.5,
+    4.5
+  ],
+  "zodiac": [
+    4.5,
+    4.5
+  ],
+  "dead poets society": [
+    4.5,
+    4.5
+  ],
+  "the double life of v\u00e9ronique": [
+    4.5,
+    4.5
+  ],
+  "oldboy": [
+    4.5,
+    4.5
+  ],
+  "dune": [
+    4.5,
+    4.5
+  ],
+  "the magician": [
+    4.5,
+    4.5
+  ],
+  "the godfather part ii": [
+    4.5,
+    4.5
+  ],
+  "resurrection": [
+    4.5,
+    4.0
+  ],
+  "moneyball": [
+    4.5,
+    4.0
+  ],
+  "black swan": [
+    4.5,
+    4.0
+  ],
+  "batman: mask of the phantasm": [
+    4.5,
+    4.0
+  ],
+  "how to train your dragon": [
+    4.5,
+    4.0
+  ],
+  "life is beautiful": [
+    4.5,
+    4.0
+  ],
+  "fantastic mr. fox": [
+    4.0,
+    4.0
+  ],
+  "the shining": [
+    4.0,
+    4.0
+  ],
+  "the godfather": [
+    4.0,
+    4.0
+  ],
+  "red rooms": [
+    4.0,
+    4.0
+  ],
+  "v for vendetta": [
+    4.0,
+    4.0
+  ],
+  "memento": [
+    4.0,
+    4.0
+  ],
+  "the grand budapest hotel": [
+    4.0,
+    4.0
+  ],
+  "spider-man 2": [
+    4.0,
+    4.0
+  ],
+  "goodfellas": [
+    4.0,
+    4.0
+  ],
+  "how to train your dragon 2": [
+    4.0,
+    4.0
+  ],
+  "jesus revolution": [
+    4.0,
+    4.0
+  ],
+  "spirited away": [
+    4.0,
+    4.0
+  ],
+  "coherence": [
+    4.0,
+    4.0
+  ],
+  "good will hunting": [
+    4.0,
+    4.0
+  ],
+  "coraline": [
+    4.0,
+    4.0
+  ],
+  "glass onion": [
+    4.0,
+    4.0
+  ],
+  "wicked": [
+    4.0,
+    4.0
+  ],
+  "spider-man": [
+    4.0,
+    4.0
+  ],
+  "uncut gems": [
+    4.0,
+    4.0
+  ],
+  "the bourne supremacy": [
+    4.0,
+    4.0
+  ],
+  "the killing of a sacred deer": [
+    4.0,
+    4.0
+  ],
+  "tangled": [
+    4.0,
+    4.0
+  ],
+  "hereditary": [
+    4.0,
+    4.0
+  ],
+  "wall\u00b7e": [
+    4.0,
+    4.0
+  ],
+  "pirates of the caribbean: at world's end": [
+    4.0,
+    4.0
+  ],
+  "it's a wonderful life": [
+    4.0,
+    4.0
+  ],
+  "primer": [
+    4.0,
+    4.0
+  ],
+  "lonesome dove": [
+    4.0,
+    4.0
+  ],
+  "batman": [
+    4.0,
+    4.0
+  ],
+  "the third man": [
+    4.0,
+    4.0
+  ],
+  "the island": [
+    4.0,
+    4.0
+  ],
+  "inglourious basterds": [
+    4.0,
+    4.0
+  ],
+  "the amazing spider-man": [
+    4.0,
+    4.0
+  ],
+  "unforgiven": [
+    4.0,
+    4.0
+  ],
+  "raising arizona": [
+    4.0,
+    4.0
+  ],
+  "the blair witch project": [
+    4.0,
+    4.0
+  ],
+  "forrest gump": [
+    4.0,
+    4.0
+  ],
+  "the passion of the christ": [
+    4.0,
+    4.0
+  ],
+  "the sacrifice": [
+    4.0,
+    4.0
+  ],
+  "knives out": [
+    4.0,
+    4.0
+  ],
+  "silverado": [
+    4.0,
+    4.0
+  ],
+  "la haine": [
+    4.0,
+    4.0
+  ],
+  "the seventh seal": [
+    4.0,
+    4.0
+  ],
+  "the devil's advocate": [
+    4.0,
+    4.0
+  ],
+  "dumb and dumber": [
+    4.0,
+    4.0
+  ],
+  "fallen angels": [
+    4.0,
+    4.0
+  ],
+  "always shine": [
+    4.0,
+    4.0
+  ],
+  "the phoenician scheme": [
+    4.0,
+    4.0
+  ],
+  "vertigo": [
+    4.0,
+    4.0
+  ],
+  "edge of tomorrow": [
+    4.0,
+    4.0
+  ],
+  "monty python and the holy grail": [
+    4.0,
+    4.0
+  ],
+  "prometheus": [
+    4.0,
+    4.0
+  ],
+  "backrooms": [
+    4.0,
+    4.0
+  ],
+  "the red shoes": [
+    4.0,
+    4.0
+  ],
+  "the endless": [
+    4.0,
+    4.0
+  ],
+  "batman: under the red hood": [
+    4.0,
+    4.0
+  ],
+  "world on a wire": [
+    4.0,
+    4.0
+  ],
+  "eddington": [
+    4.0,
+    4.0
+  ],
+  "casablanca": [
+    4.0,
+    4.0
+  ],
+  "minority report": [
+    4.0,
+    4.0
+  ],
+  "alita: battle angel": [
+    4.0,
+    4.0
+  ],
+  "project hail mary": [
+    4.0,
+    4.0
+  ],
+  "the incredibles": [
+    4.0,
+    4.0
+  ],
+  "nope": [
+    4.0,
+    4.0
+  ],
+  "punch-drunk love": [
+    4.0,
+    4.0
+  ],
+  "jojo rabbit": [
+    4.0,
+    4.0
+  ],
+  "another earth": [
+    4.0,
+    4.0
+  ],
+  "thx 1138": [
+    4.0,
+    4.0
+  ],
+  "wake up dead man": [
+    4.0,
+    4.0
+  ],
+  "gone in sixty seconds": [
+    4.0,
+    4.0
+  ],
+  "sonic the hedgehog 3": [
+    4.0,
+    4.0
+  ],
+  "the odyssey": [
+    4.0,
+    4.0
+  ],
+  "citizen kane": [
+    4.0,
+    4.0
+  ],
+  "ocean's eleven": [
+    4.0,
+    4.0
+  ],
+  "pirates of the caribbean: dead man's chest": [
+    4.0,
+    4.0
+  ],
+  "the bourne identity": [
+    4.0,
+    4.0
+  ],
+  "courageous": [
+    4.0,
+    4.0
+  ],
+  "angel's egg": [
+    4.0,
+    4.0
+  ],
+  "jurassic park": [
+    4.0,
+    4.0
+  ],
+  "magnolia": [
+    4.0,
+    4.0
+  ],
+  "captain america: the first avenger": [
+    4.0,
+    4.0
+  ],
+  "the lobster": [
+    4.0,
+    4.0
+  ],
+  "the virgin spring": [
+    4.0,
+    4.0
+  ],
+  "moon": [
+    4.0,
+    4.0
+  ],
+  "hitch": [
+    4.0,
+    4.0
+  ],
+  "mulholland drive": [
+    4.0,
+    4.0
+  ],
+  "the nightmare before christmas": [
+    4.0,
+    4.0
+  ],
+  "a knight's tale": [
+    4.0,
+    4.0
+  ],
+  "the butterfly effect": [
+    4.0,
+    4.0
+  ],
+  "captain america: civil war": [
+    4.0,
+    4.0
+  ],
+  "back to the future": [
+    4.0,
+    4.0
+  ],
+  "harry potter and the deathly hallows: part 2": [
+    4.0,
+    4.0
+  ],
+  "the thomas crown affair": [
+    4.0,
+    3.5
+  ],
+  "mr. & mrs. smith": [
+    4.0,
+    3.5
+  ],
+  "mission: impossible \u2013 rogue nation": [
+    4.0,
+    3.5
+  ],
+  "willy wonka & the chocolate factory": [
+    4.0,
+    3.5
+  ],
+  "little women": [
+    4.0,
+    3.5
+  ],
+  "beautiful boy": [
+    4.0,
+    3.5
+  ],
+  "sinners": [
+    4.0,
+    3.5
+  ],
+  "a short film about killing": [
+    3.5,
+    3.5
+  ],
+  "fight club": [
+    3.5,
+    3.5
+  ],
+  "harry potter and the deathly hallows: part 1": [
+    3.5,
+    3.5
+  ],
+  "remember the titans": [
+    3.5,
+    3.5
+  ],
+  "about time": [
+    3.5,
+    3.5
+  ],
+  "sherlock holmes: a game of shadows": [
+    3.5,
+    3.5
+  ],
+  "blade runner": [
+    3.5,
+    3.5
+  ],
+  "the emperor's new groove": [
+    3.5,
+    3.5
+  ],
+  "mission: impossible \u2013 fallout": [
+    3.5,
+    3.5
+  ],
+  "this is spinal tap": [
+    3.5,
+    3.5
+  ],
+  "despicable me": [
+    3.5,
+    3.5
+  ],
+  "arrival": [
+    3.5,
+    3.5
+  ],
+  "three colours: white": [
+    3.5,
+    3.5
+  ],
+  "ice age: the meltdown": [
+    3.5,
+    3.5
+  ],
+  "chungking express": [
+    3.5,
+    3.5
+  ],
+  "kung fu panda": [
+    3.5,
+    3.5
+  ],
+  "stalker": [
+    3.5,
+    3.5
+  ],
+  "the lord of the rings: the war of the rohirrim": [
+    3.5,
+    3.5
+  ],
+  "spider-man: brand new day": [
+    3.5,
+    3.5
+  ],
+  "the wind rises": [
+    3.5,
+    3.5
+  ],
+  "blade runner 2049": [
+    3.5,
+    3.5
+  ],
+  "the martian": [
+    3.5,
+    3.5
+  ],
+  "the devil wears prada": [
+    3.5,
+    3.5
+  ],
+  "bullet train": [
+    3.5,
+    3.5
+  ],
+  "kung fu panda 2": [
+    3.5,
+    3.5
+  ],
+  "is this thing on?": [
+    3.5,
+    3.5
+  ],
+  "scott pilgrim takes off": [
+    3.5,
+    3.5
+  ],
+  "nightcrawler": [
+    3.5,
+    3.5
+  ],
+  "puss in boots: the last wish": [
+    3.5,
+    3.5
+  ],
+  "crazy, stupid, love.": [
+    3.5,
+    3.5
+  ],
+  "days of heaven": [
+    3.5,
+    3.5
+  ],
+  "witness for the prosecution": [
+    3.5,
+    3.5
+  ],
+  "donnie darko": [
+    3.5,
+    3.5
+  ],
+  "nashville": [
+    3.5,
+    3.5
+  ],
+  "nimona": [
+    3.5,
+    3.5
+  ],
+  "mission: impossible \u2013 ghost protocol": [
+    3.5,
+    3.5
+  ],
+  "annihilation": [
+    3.5,
+    3.5
+  ],
+  "top gun": [
+    3.5,
+    3.5
+  ],
+  "the imitation game": [
+    3.5,
+    3.5
+  ],
+  "mirror": [
+    3.5,
+    3.5
+  ],
+  "groundhog day": [
+    3.5,
+    3.5
+  ],
+  "how to make a killing": [
+    3.5,
+    3.5
+  ],
+  "national treasure": [
+    3.5,
+    3.5
+  ],
+  "the amateur": [
+    3.5,
+    3.5
+  ],
+  "the player": [
+    3.5,
+    3.5
+  ],
+  "a nightmare on elm street": [
+    3.5,
+    3.5
+  ],
+  "the night of the hunter": [
+    3.5,
+    3.5
+  ],
+  "the velocipastor": [
+    3.5,
+    3.5
+  ],
+  "paprika": [
+    3.5,
+    3.5
+  ],
+  "deep red": [
+    3.5,
+    3.5
+  ],
+  "spotlight": [
+    3.5,
+    3.5
+  ],
+  "shrek": [
+    3.5,
+    3.5
+  ],
+  "10 cloverfield lane": [
+    3.5,
+    3.5
+  ],
+  "monsters university": [
+    3.5,
+    3.5
+  ],
+  "pirates of the caribbean: on stranger tides": [
+    3.5,
+    3.5
+  ],
+  "collateral": [
+    3.5,
+    3.5
+  ],
+  "how to lose a guy in 10 days": [
+    3.5,
+    3.5
+  ],
+  "tick, tick... boom!": [
+    3.5,
+    3.5
+  ],
+  "batman: the dark knight returns, part 1": [
+    3.5,
+    3.5
+  ],
+  "the mitchells vs. the machines": [
+    3.5,
+    3.5
+  ],
+  "the hunt for red october": [
+    3.5,
+    3.5
+  ],
+  "singin' in the rain": [
+    3.5,
+    3.5
+  ],
+  "soylent green": [
+    3.5,
+    3.5
+  ],
+  "rear window": [
+    3.5,
+    3.5
+  ],
+  "the long goodbye": [
+    3.5,
+    3.5
+  ],
+  "thunderbolts*": [
+    3.5,
+    3.5
+  ],
+  "wild strawberries": [
+    3.5,
+    3.5
+  ],
+  "scott pilgrim vs. the world": [
+    3.5,
+    3.5
+  ],
+  "anatomy of a fall": [
+    3.5,
+    3.5
+  ],
+  "charade": [
+    3.5,
+    3.5
+  ],
+  "the natural": [
+    3.5,
+    3.5
+  ],
+  "the master": [
+    3.5,
+    3.5
+  ],
+  "the lorax": [
+    3.5,
+    3.5
+  ],
+  "raiders of the lost ark": [
+    3.5,
+    3.5
+  ],
+  "i can only imagine": [
+    3.5,
+    3.5
+  ],
+  "from russia with love": [
+    3.5,
+    3.5
+  ],
+  "the drama": [
+    3.5,
+    3.5
+  ],
+  "the fantastic 4: first steps": [
+    3.5,
+    3.5
+  ],
+  "the village": [
+    3.5,
+    3.5
+  ],
+  "megamind": [
+    3.5,
+    3.5
+  ],
+  "ghostbusters": [
+    3.5,
+    3.5
+  ],
+  "the lighthouse": [
+    3.5,
+    3.5
+  ],
+  "miracle": [
+    3.5,
+    3.5
+  ],
+  "la la land": [
+    3.5,
+    3.5
+  ],
+  "superman": [
+    3.5,
+    3.5
+  ],
+  "big hero 6": [
+    3.5,
+    3.5
+  ],
+  "paranormal activity": [
+    3.5,
+    3.5
+  ],
+  "the pirates who don't do anything: a veggietales movie": [
+    3.5,
+    3.5
+  ],
+  "rudy": [
+    3.5,
+    3.5
+  ],
+  "twilight": [
+    3.5,
+    3.5
+  ],
+  "facing the giants": [
+    3.5,
+    3.5
+  ],
+  "now you see me": [
+    3.5,
+    3.5
+  ],
+  "fried green tomatoes": [
+    3.5,
+    3.5
+  ],
+  "star wars: clone wars": [
+    3.5,
+    3.5
+  ],
+  "network": [
+    3.5,
+    3.5
+  ],
+  "clueless": [
+    3.5,
+    3.5
+  ],
+  "gone with the wind": [
+    3.5,
+    3.5
+  ],
+  "the witch": [
+    3.5,
+    3.5
+  ],
+  "doppelg\u00e4nger": [
+    3.5,
+    3.5
+  ],
+  "inside out 2": [
+    3.5,
+    3.5
+  ],
+  "aliens": [
+    3.5,
+    3.5
+  ],
+  "the holiday": [
+    3.5,
+    3.5
+  ],
+  "american psycho": [
+    3.5,
+    3.5
+  ],
+  "free birds": [
+    3.5,
+    3.5
+  ],
+  "murder on the orient express": [
+    3.5,
+    3.5
+  ],
+  "turbo": [
+    3.5,
+    3.5
+  ],
+  "fantastic beasts: the crimes of grindelwald": [
+    3.5,
+    3.5
+  ],
+  "shattered glass": [
+    3.5,
+    3.5
+  ],
+  "dunkirk": [
+    3.5,
+    3.5
+  ],
+  "the dark knight rises": [
+    3.5,
+    3.5
+  ],
+  "the king of comedy": [
+    3.5,
+    3.5
+  ],
+  "the rookie": [
+    3.5,
+    3.5
+  ],
+  "the book of life": [
+    3.5,
+    3.5
+  ],
+  "the hobbit: the desolation of smaug": [
+    3.5,
+    3.5
+  ],
+  "rango": [
+    3.5,
+    3.5
+  ],
+  "vivarium": [
+    3.5,
+    3.5
+  ],
+  "the wind": [
+    3.5,
+    3.5
+  ],
+  "midsommar": [
+    3.5,
+    3.5
+  ],
+  "shanghai noon": [
+    3.5,
+    3.5
+  ],
+  "lost highway": [
+    3.5,
+    3.5
+  ],
+  "my big fat greek wedding": [
+    3.5,
+    3.5
+  ],
+  "murder mystery": [
+    3.5,
+    3.5
+  ],
+  "ice age: dawn of the dinosaurs": [
+    3.5,
+    3.5
+  ],
+  "mission: impossible \u2013 dead reckoning": [
+    3.5,
+    3.5
+  ],
+  "wreck-it ralph": [
+    3.5,
+    3.5
+  ],
+  "robin hood": [
+    3.5,
+    3.5
+  ],
+  "shrek 2": [
+    3.5,
+    3.5
+  ],
+  "sherlock holmes": [
+    3.5,
+    3.5
+  ],
+  "sympathy for mr. vengeance": [
+    3.5,
+    3.5
+  ],
+  "the end of oak street": [
+    3.5,
+    3.5
+  ],
+  "looney tunes: back in action": [
+    3.5,
+    3.5
+  ],
+  "paths of glory": [
+    3.5,
+    3.5
+  ],
+  "death on the nile": [
+    3.5,
+    3.5
+  ],
+  "the banshees of inisherin": [
+    3.5,
+    3.5
+  ],
+  "the boys from brazil": [
+    3.5,
+    3.5
+  ],
+  "alien: covenant": [
+    3.5,
+    3.5
+  ],
+  "gifted": [
+    3.5,
+    3.5
+  ],
+  "batman begins": [
+    3.5,
+    3.5
+  ],
+  "x-men": [
+    3.5,
+    3.5
+  ],
+  "night at the museum": [
+    3.5,
+    3.5
+  ],
+  "the lost boys": [
+    3.5,
+    3.5
+  ],
+  "click": [
+    3.5,
+    3.5
+  ],
+  "thor": [
+    3.5,
+    3.5
+  ],
+  "once upon a time... in hollywood": [
+    3.5,
+    3.5
+  ],
+  "independence day": [
+    3.5,
+    3.5
+  ],
+  "home alone": [
+    3.5,
+    3.5
+  ],
+  "isle of dogs": [
+    3.5,
+    3.5
+  ],
+  "cries and whispers": [
+    3.5,
+    3.5
+  ],
+  "batman: bad blood": [
+    3.5,
+    3.5
+  ],
+  "guardians of the galaxy vol. 3": [
+    3.5,
+    3.5
+  ],
+  "x-men: first class": [
+    3.5,
+    3.5
+  ],
+  "happy death day": [
+    3.5,
+    3.5
+  ],
+  "a short film about love": [
+    3.5,
+    3.5
+  ],
+  "spider-man: homecoming": [
+    3.5,
+    3.5
+  ],
+  "liar liar": [
+    3.5,
+    3.5
+  ],
+  "harry potter and the half-blood prince": [
+    3.5,
+    3.5
+  ],
+  "doctor sleep": [
+    3.5,
+    3.5
+  ],
+  "rocky iv": [
+    3.5,
+    3.5
+  ],
+  "guardians of the galaxy": [
+    3.5,
+    3.5
+  ],
+  "toy story 2": [
+    3.5,
+    3.5
+  ],
+  "spider-man: no way home": [
+    3.5,
+    3.5
+  ],
+  "the lego ninjago movie": [
+    3.5,
+    3.5
+  ],
+  "diggstown": [
+    3.5,
+    3.5
+  ],
+  "17 again": [
+    3.5,
+    3.5
+  ],
+  "in the mood for love": [
+    3.5,
+    3.5
+  ],
+  "the man who haunted himself": [
+    3.5,
+    3.5
+  ],
+  "dead ringers": [
+    3.5,
+    3.5
+  ],
+  "bicycle thieves": [
+    3.5,
+    3.5
+  ],
+  "looper": [
+    3.5,
+    3.5
+  ],
+  "happy gilmore": [
+    3.5,
+    3.5
+  ],
+  "american underdog": [
+    3.0,
+    3.5
+  ],
+  "twisters": [
+    3.0,
+    3.5
+  ],
+  "star wars: episode i \u2013 the phantom menace": [
+    3.0,
+    3.5
+  ],
+  "captain america: the winter soldier": [
+    3.0,
+    3.5
+  ],
+  "it ends with us": [
+    3.0,
+    3.5
+  ],
+  "twelve monkeys": [
+    3.0,
+    3.0
+  ],
+  "avengers: age of ultron": [
+    3.0,
+    3.0
+  ],
+  "rocky ii": [
+    3.0,
+    3.0
+  ],
+  "trolls": [
+    3.0,
+    3.0
+  ],
+  "the peanuts movie": [
+    3.0,
+    3.0
+  ],
+  "the last samurai": [
+    3.0,
+    3.0
+  ],
+  "halloween": [
+    3.0,
+    3.0
+  ],
+  "batman v superman: dawn of justice": [
+    3.0,
+    3.0
+  ],
+  "the rock": [
+    3.0,
+    3.0
+  ],
+  "the favourite": [
+    3.0,
+    3.0
+  ],
+  "changeling": [
+    3.0,
+    3.0
+  ],
+  "eyes without a face": [
+    3.0,
+    3.0
+  ],
+  "pok\u00e9mon detective pikachu": [
+    3.0,
+    3.0
+  ],
+  "primetime": [
+    3.0,
+    3.0
+  ],
+  "the royal tenenbaums": [
+    3.0,
+    3.0
+  ],
+  "i still believe": [
+    3.0,
+    3.0
+  ],
+  "ice age": [
+    3.0,
+    3.0
+  ],
+  "the boss baby": [
+    3.0,
+    3.0
+  ],
+  "get smart": [
+    3.0,
+    3.0
+  ],
+  "42": [
+    3.0,
+    3.0
+  ],
+  "diabolique": [
+    3.0,
+    3.0
+  ],
+  "may december": [
+    3.0,
+    3.0
+  ],
+  "despicable me 2": [
+    3.0,
+    3.0
+  ],
+  "the greatest showman": [
+    3.0,
+    3.0
+  ],
+  "harry potter and the order of the phoenix": [
+    3.0,
+    3.0
+  ],
+  "ice age: collision course": [
+    3.0,
+    3.0
+  ],
+  "sonic the hedgehog": [
+    3.0,
+    3.0
+  ],
+  "the blind side": [
+    3.0,
+    3.0
+  ],
+  "the bad guys": [
+    3.0,
+    3.0
+  ],
+  "meet the robinsons": [
+    3.0,
+    3.0
+  ],
+  "interstellar": [
+    3.0,
+    3.0
+  ],
+  "star wars: the clone wars": [
+    3.0,
+    3.0
+  ],
+  "the brutalist": [
+    3.0,
+    3.0
+  ],
+  "cl\u00e9o from 5 to 7": [
+    3.0,
+    3.0
+  ],
+  "doctor strange": [
+    3.0,
+    3.0
+  ],
+  "final destination": [
+    3.0,
+    3.0
+  ],
+  "monsters, inc.": [
+    3.0,
+    3.0
+  ],
+  "hercules": [
+    3.0,
+    3.0
+  ],
+  "the conjuring": [
+    3.0,
+    3.0
+  ],
+  "going in style": [
+    3.0,
+    3.0
+  ],
+  "avengers: infinity war": [
+    3.0,
+    3.0
+  ],
+  "jonah: a veggietales movie": [
+    3.0,
+    3.0
+  ],
+  "jumanji: welcome to the jungle": [
+    3.0,
+    3.0
+  ],
+  "the hobbit: an unexpected journey": [
+    3.0,
+    3.0
+  ],
+  "mission: impossible \u2013 the final reckoning": [
+    3.0,
+    3.0
+  ],
+  "scooby-doo! and the loch ness monster": [
+    3.0,
+    3.0
+  ],
+  "the killer": [
+    3.0,
+    3.0
+  ],
+  "a clockwork orange": [
+    3.0,
+    3.0
+  ],
+  "harry potter and the philosopher's stone": [
+    3.0,
+    3.0
+  ],
+  "lady bird": [
+    3.0,
+    3.0
+  ],
+  "storks": [
+    3.0,
+    3.0
+  ],
+  "bolt": [
+    3.0,
+    3.0
+  ],
+  "oblivion": [
+    3.0,
+    3.0
+  ],
+  "ivan's childhood": [
+    3.0,
+    3.0
+  ],
+  "star wars: the force awakens": [
+    3.0,
+    3.0
+  ],
+  "dora and the lost city of gold": [
+    3.0,
+    3.0
+  ],
+  "high school musical": [
+    3.0,
+    3.0
+  ],
+  "the hobbit: the battle of the five armies": [
+    3.0,
+    3.0
+  ],
+  "treasure planet": [
+    3.0,
+    3.0
+  ],
+  "the proposal": [
+    3.0,
+    3.0
+  ],
+  "the hourglass sanatorium": [
+    3.0,
+    3.0
+  ],
+  "scream 2": [
+    3.0,
+    3.0
+  ],
+  "the avengers": [
+    3.0,
+    3.0
+  ],
+  "andrei rublev": [
+    3.0,
+    3.0
+  ],
+  "the italian job": [
+    3.0,
+    3.0
+  ],
+  "harry potter and the goblet of fire": [
+    3.0,
+    3.0
+  ],
+  "dr. no": [
+    3.0,
+    3.0
+  ],
+  "mission: impossible iii": [
+    3.0,
+    3.0
+  ],
+  "beetlejuice": [
+    3.0,
+    3.0
+  ],
+  "the conjuring 2": [
+    3.0,
+    3.0
+  ],
+  "harry potter and the prisoner of azkaban": [
+    3.0,
+    3.0
+  ],
+  "pirates of the caribbean: dead men tell no tales": [
+    3.0,
+    3.0
+  ],
+  "kung fu panda 3": [
+    3.0,
+    3.0
+  ],
+  "the road to el dorado": [
+    3.0,
+    3.0
+  ],
+  "the league of extraordinary gentlemen": [
+    3.0,
+    3.0
+  ],
+  "serenity": [
+    3.0,
+    3.0
+  ],
+  "mickey 17": [
+    3.0,
+    3.0
+  ],
+  "home alone 2: lost in new york": [
+    3.0,
+    3.0
+  ],
+  "psych 2: lassie come home": [
+    3.0,
+    3.0
+  ],
+  "evan almighty": [
+    3.0,
+    3.0
+  ],
+  "the chronicles of narnia: the voyage of the dawn treader": [
+    3.0,
+    3.0
+  ],
+  "the fast and the furious": [
+    3.0,
+    3.0
+  ],
+  "kpop demon hunters": [
+    3.0,
+    3.0
+  ],
+  "the chronicles of narnia: the lion, the witch and the wardrobe": [
+    3.0,
+    3.0
+  ],
+  "bee movie": [
+    3.0,
+    3.0
+  ],
+  "hidden figures": [
+    3.0,
+    3.0
+  ],
+  "rise of the guardians": [
+    3.0,
+    3.0
+  ],
+  "psych: the movie": [
+    3.0,
+    3.0
+  ],
+  "wonka": [
+    3.0,
+    3.0
+  ],
+  "playtime": [
+    3.0,
+    3.0
+  ],
+  "madagascar": [
+    3.0,
+    3.0
+  ],
+  "rocky iii": [
+    3.0,
+    3.0
+  ],
+  "the muppets": [
+    3.0,
+    3.0
+  ],
+  "glory road": [
+    3.0,
+    3.0
+  ],
+  "spies in disguise": [
+    3.0,
+    3.0
+  ],
+  "the outsiders": [
+    3.0,
+    3.0
+  ],
+  "enemy": [
+    3.0,
+    3.0
+  ],
+  "night at the museum: secret of the tomb": [
+    3.0,
+    3.0
+  ],
+  "cloudy with a chance of meatballs 2": [
+    3.0,
+    3.0
+  ],
+  "under the silver lake": [
+    3.0,
+    3.0
+  ],
+  "now you see me 2": [
+    3.0,
+    3.0
+  ],
+  "rio": [
+    3.0,
+    3.0
+  ],
+  "i'm not scared": [
+    3.0,
+    3.0
+  ],
+  "encanto": [
+    3.0,
+    3.0
+  ],
+  "harry potter and the chamber of secrets": [
+    3.0,
+    3.0
+  ],
+  "zootopia 2": [
+    3.0,
+    3.0
+  ],
+  "inside out": [
+    3.0,
+    3.0
+  ],
+  "the lego movie 2: the second part": [
+    3.0,
+    3.0
+  ],
+  "the bird with the crystal plumage": [
+    3.0,
+    3.0
+  ],
+  "how to train your dragon: the hidden world": [
+    3.0,
+    3.0
+  ],
+  "m": [
+    3.0,
+    3.0
+  ],
+  "jumper": [
+    3.0,
+    3.0
+  ],
+  "iron man": [
+    3.0,
+    3.0
+  ],
+  "rushmore": [
+    3.0,
+    3.0
+  ],
+  "wicked: for good": [
+    3.0,
+    3.0
+  ],
+  "rise": [
+    3.0,
+    3.0
+  ],
+  "hour of the wolf": [
+    3.0,
+    3.0
+  ],
+  "heads of state": [
+    3.0,
+    3.0
+  ],
+  "moana": [
+    3.0,
+    3.0
+  ],
+  "millennium actress": [
+    3.0,
+    3.0
+  ],
+  "brazil": [
+    3.0,
+    3.0
+  ],
+  "home": [
+    3.0,
+    3.0
+  ],
+  "ready player one": [
+    3.0,
+    3.0
+  ],
+  "the super mario bros. movie": [
+    3.0,
+    3.0
+  ],
+  "dreams": [
+    3.0,
+    3.0
+  ],
+  "masters of the universe (2026)": [
+    3.0,
+    3.0
+  ],
+  "masters of the universe": [
+    1.5,
+    1.5
+  ],
+  "the bling ring": [
+    3.0,
+    3.0
+  ],
+  "face to face": [
+    3.0,
+    3.0
+  ],
+  "burn after reading": [
+    3.0,
+    3.0
+  ],
+  "the christmas chronicles": [
+    3.0,
+    3.0
+  ],
+  "regretting you": [
+    3.0,
+    3.0
+  ],
+  "shazam!": [
+    3.0,
+    3.0
+  ],
+  "the fly": [
+    3.0,
+    3.0
+  ],
+  "cinderella": [
+    3.0,
+    3.0
+  ],
+  "the ministry of ungentlemanly warfare": [
+    3.0,
+    3.0
+  ],
+  "x2": [
+    3.0,
+    3.0
+  ],
+  "the amazing spider-man 2": [
+    3.0,
+    3.0
+  ],
+  "cloudy with a chance of meatballs": [
+    3.0,
+    3.0
+  ],
+  "man of steel": [
+    3.0,
+    3.0
+  ],
+  "zootopia": [
+    3.0,
+    3.0
+  ],
+  "mulan": [
+    3.0,
+    3.0
+  ],
+  "interview with the vampire": [
+    3.0,
+    3.0
+  ],
+  "solo: a star wars story": [
+    3.0,
+    3.0
+  ],
+  "a quiet place": [
+    3.0,
+    3.0
+  ],
+  "batman vs. robin": [
+    3.0,
+    3.0
+  ],
+  "the angry birds movie": [
+    3.0,
+    3.0
+  ],
+  "cars 2": [
+    3.0,
+    3.0
+  ],
+  "deathtrap": [
+    3.0,
+    3.0
+  ],
+  "north by northwest": [
+    3.0,
+    3.0
+  ],
+  "the wicker man": [
+    3.0,
+    3.0
+  ],
+  "night at the museum: battle of the smithsonian": [
+    3.0,
+    3.0
+  ],
+  "sonic the hedgehog 2": [
+    3.0,
+    2.5
+  ],
+  "madagascar: escape 2 africa": [
+    3.0,
+    2.5
+  ],
+  "knight and day": [
+    3.0,
+    2.5
+  ],
+  "toy story": [
+    3.0,
+    2.5
+  ],
+  "jack reacher: never go back": [
+    3.0,
+    2.5
+  ],
+  "unbreakable": [
+    3.0,
+    2.5
+  ],
+  "bugonia": [
+    3.0,
+    2.5
+  ],
+  "midnight in paris": [
+    3.0,
+    2.5
+  ],
+  "sherlock gnomes": [
+    3.0,
+    2.5
+  ],
+  "ice age: continental drift": [
+    3.0,
+    2.5
+  ],
+  "2001: a space odyssey": [
+    3.0,
+    2.5
+  ],
+  "jack the giant slayer": [
+    3.0,
+    2.5
+  ],
+  "all dogs go to heaven": [
+    3.0,
+    2.5
+  ],
+  "muppets most wanted": [
+    3.0,
+    2.5
+  ],
+  "50 first dates": [
+    3.0,
+    2.5
+  ],
+  "peter pan": [
+    3.0,
+    2.5
+  ],
+  "ad astra": [
+    3.0,
+    2.5
+  ],
+  "monsters vs aliens": [
+    3.0,
+    2.5
+  ],
+  "klaus": [
+    3.0,
+    2.5
+  ],
+  "epic": [
+    3.0,
+    2.5
+  ],
+  "finding nemo": [
+    2.5,
+    2.5
+  ],
+  "signs": [
+    2.5,
+    2.5
+  ],
+  "the handmaiden": [
+    2.5,
+    2.5
+  ],
+  "a goofy movie": [
+    2.5,
+    2.5
+  ],
+  "frozen": [
+    2.5,
+    2.5
+  ],
+  "lake mungo": [
+    2.5,
+    2.5
+  ],
+  "son of batman": [
+    2.5,
+    2.5
+  ],
+  "scrooged": [
+    2.5,
+    2.5
+  ],
+  "scooby-doo! camp scare": [
+    2.5,
+    2.5
+  ],
+  "aladdin (2019)": [
+    2.5,
+    2.5
+  ],
+  "aladdin": [
+    2.5,
+    2.5
+  ],
+  "aladdin (1992)": [
+    2.5,
+    2.5
+  ],
+  "phineas and ferb the movie: across the 2nd dimension": [
+    2.5,
+    2.5
+  ],
+  "modern times": [
+    2.5,
+    2.5
+  ],
+  "death al dente: a gourmet detective mystery": [
+    2.5,
+    2.5
+  ],
+  "zombieland": [
+    2.5,
+    2.5
+  ],
+  "tropic thunder": [
+    2.5,
+    2.5
+  ],
+  "ferris bueller's day off": [
+    2.5,
+    2.5
+  ],
+  "drive": [
+    2.5,
+    2.5
+  ],
+  "red riding hood": [
+    2.5,
+    2.5
+  ],
+  "despicable me 3": [
+    2.5,
+    2.5
+  ],
+  "ratatouille": [
+    2.5,
+    2.5
+  ],
+  "one battle after another": [
+    2.5,
+    2.5
+  ],
+  "hotel transylvania": [
+    2.5,
+    2.5
+  ],
+  "gourmet detective: eat, drink and be buried": [
+    2.5,
+    2.5
+  ],
+  "gourmet detective": [
+    2.5,
+    2.5
+  ],
+  "johnny english reborn": [
+    2.5,
+    2.5
+  ],
+  "brother bear": [
+    2.5,
+    2.5
+  ],
+  "onward": [
+    2.5,
+    2.5
+  ],
+  "avatar": [
+    2.5,
+    2.5
+  ],
+  "mission: impossible ii": [
+    2.5,
+    2.5
+  ],
+  "toy story 3": [
+    2.5,
+    2.5
+  ],
+  "the angry birds movie 2": [
+    2.5,
+    2.5
+  ],
+  "spy kids": [
+    2.5,
+    2.5
+  ],
+  "the secret life of walter mitty": [
+    2.5,
+    2.5
+  ],
+  "remarkably bright creatures": [
+    2.5,
+    2.5
+  ],
+  "fantastic planet": [
+    2.5,
+    2.5
+  ],
+  "pulp fiction": [
+    2.5,
+    2.5
+  ],
+  "ron's gone wrong": [
+    2.5,
+    2.5
+  ],
+  "annabelle: creation": [
+    2.5,
+    2.5
+  ],
+  "fantastic beasts and where to find them": [
+    2.5,
+    2.5
+  ],
+  "planet 51": [
+    2.5,
+    2.5
+  ],
+  "raya and the last dragon": [
+    2.5,
+    2.5
+  ],
+  "the goonies": [
+    2.5,
+    2.5
+  ],
+  "peter rabbit": [
+    2.5,
+    2.5
+  ],
+  "happy feet": [
+    2.5,
+    2.5
+  ],
+  "mr. peabody & sherman": [
+    2.5,
+    2.5
+  ],
+  "up": [
+    2.5,
+    2.5
+  ],
+  "safety": [
+    2.5,
+    2.5
+  ],
+  "spy kids 2: the island of lost dreams": [
+    2.5,
+    2.5
+  ],
+  "minions": [
+    2.5,
+    2.5
+  ],
+  "guardians of the galaxy vol. 2": [
+    2.5,
+    2.5
+  ],
+  "charlie and the chocolate factory": [
+    2.5,
+    2.5
+  ],
+  "thor: ragnarok": [
+    2.5,
+    2.5
+  ],
+  "fargo": [
+    2.5,
+    2.5
+  ],
+  "space jam": [
+    2.5,
+    2.5
+  ],
+  "star wars: the rise of skywalker": [
+    2.5,
+    2.5
+  ],
+  "elf": [
+    2.5,
+    2.5
+  ],
+  "paddington 2": [
+    2.5,
+    2.5
+  ],
+  "johnny english": [
+    2.5,
+    2.5
+  ],
+  "the unbearable weight of massive talent": [
+    2.5,
+    2.5
+  ],
+  "the fox and the hound": [
+    2.5,
+    2.5
+  ],
+  "aloha scooby-doo!": [
+    2.5,
+    2.5
+  ],
+  "incredibles 2": [
+    2.5,
+    2.5
+  ],
+  "penguins of madagascar": [
+    2.5,
+    2.5
+  ],
+  "alvin and the chipmunks": [
+    2.5,
+    2.5
+  ],
+  "the dictator": [
+    2.5,
+    2.5
+  ],
+  "rosemary's baby": [
+    2.5,
+    2.5
+  ],
+  "obsession": [
+    2.5,
+    2.5
+  ],
+  "a quiet place in the country": [
+    2.5,
+    2.5
+  ],
+  "planes": [
+    2.5,
+    2.5
+  ],
+  "corpse bride": [
+    2.5,
+    2.5
+  ],
+  "the brave little toaster goes to mars": [
+    2.5,
+    2.5
+  ],
+  "the croods": [
+    2.5,
+    2.5
+  ],
+  "frozen ii": [
+    2.5,
+    2.5
+  ],
+  "vajont": [
+    2.5,
+    2.5
+  ],
+  "gourmet detective: a healthy place to die": [
+    2.5,
+    2.5
+  ],
+  "rio 2": [
+    2.5,
+    2.5
+  ],
+  "elemental": [
+    2.5,
+    2.5
+  ],
+  "lego batman: the movie - dc super heroes unite": [
+    2.5,
+    2.5
+  ],
+  "brave": [
+    2.5,
+    2.5
+  ],
+  "the karate kid": [
+    2.5,
+    2.5
+  ],
+  "snow white and the seven dwarfs": [
+    2.5,
+    2.5
+  ],
+  "flubber": [
+    2.5,
+    2.5
+  ],
+  "flushed away": [
+    2.5,
+    2.5
+  ],
+  "an extremely goofy movie": [
+    2.5,
+    2.5
+  ],
+  "space jam: a new legacy": [
+    2.5,
+    2.5
+  ],
+  "cinema paradiso": [
+    2.5,
+    2.5
+  ],
+  "the book thief": [
+    2.5,
+    2.5
+  ],
+  "soul": [
+    2.5,
+    2.5
+  ],
+  "constantine": [
+    2.5,
+    2.5
+  ],
+  "peter rabbit 2: the runaway": [
+    2.5,
+    2.5
+  ],
+  "sleeping beauty": [
+    2.5,
+    2.5
+  ],
+  "ultraman: rising": [
+    2.5,
+    2.5
+  ],
+  "zapped": [
+    2.5,
+    2.5
+  ],
+  "zoolander": [
+    2.5,
+    2.5
+  ],
+  "the hill": [
+    2.5,
+    2.5
+  ],
+  "the wild robot": [
+    2.5,
+    2.5
+  ],
+  "the super mario galaxy movie": [
+    2.5,
+    2.5
+  ],
+  "chicken little": [
+    2.5,
+    2.5
+  ],
+  "hook": [
+    2.5,
+    2.5
+  ],
+  "videodrome": [
+    2.5,
+    2.5
+  ],
+  "high school musical 2": [
+    2.5,
+    2.5
+  ],
+  "cheaper by the dozen": [
+    2.5,
+    2.5
+  ],
+  "morbius": [
+    2.5,
+    2.5
+  ],
+  "godzilla": [
+    2.5,
+    2.5
+  ],
+  "curious george": [
+    2.5,
+    2.5
+  ],
+  "finding dory": [
+    2.5,
+    2.5
+  ],
+  "divergent": [
+    2.5,
+    2.5
+  ],
+  "batman: year one": [
+    2.5,
+    2.5
+  ],
+  "mr. popper's penguins": [
+    2.5,
+    2.5
+  ],
+  "lady and the tramp": [
+    2.5,
+    2.5
+  ],
+  "the parent trap": [
+    2.5,
+    2.5
+  ],
+  "around the world in 80 days": [
+    2.5,
+    2.5
+  ],
+  "khumba": [
+    2.5,
+    2.5
+  ],
+  "spider-man: far from home": [
+    2.5,
+    2.5
+  ],
+  "big fish": [
+    2.5,
+    2.5
+  ],
+  "smurfs: the lost village": [
+    2.5,
+    2.5
+  ],
+  "the croods: a new age": [
+    2.5,
+    2.5
+  ],
+  "the grinch": [
+    2.5,
+    2.5
+  ],
+  "garage sale mystery: murder by text": [
+    2.0,
+    2.5
+  ],
+  "the princess and the frog": [
+    2.0,
+    2.5
+  ],
+  "ponyo": [
+    2.0,
+    2.5
+  ],
+  "the nut job": [
+    2.0,
+    2.5
+  ],
+  "horse girl": [
+    2.0,
+    2.5
+  ],
+  "slumberland": [
+    2.0,
+    2.5
+  ],
+  "them": [
+    2.0,
+    2.5
+  ],
+  "batman: gotham knight": [
+    2.0,
+    2.5
+  ],
+  "the spiderwick chronicles": [
+    2.0,
+    2.5
+  ],
+  "spy kids 3-d: game over": [
+    2.0,
+    2.5
+  ],
+  "robots": [
+    2.0,
+    2.5
+  ],
+  "go!": [
+    2.0,
+    2.5
+  ],
+  "alvin and the chipmunks: chipwrecked": [
+    2.0,
+    2.5
+  ],
+  "the bfg": [
+    2.0,
+    2.5
+  ],
+  "ballerina": [
+    2.0,
+    2.5
+  ],
+  "a christmas carol": [
+    2.0,
+    2.5
+  ],
+  "old yeller": [
+    2.0,
+    2.5
+  ],
+  "luca": [
+    2.0,
+    2.0
+  ],
+  "the forge": [
+    2.0,
+    2.0
+  ],
+  "happy feet two": [
+    2.0,
+    2.0
+  ],
+  "ferdinand": [
+    2.0,
+    2.0
+  ],
+  "good burger": [
+    2.0,
+    2.0
+  ],
+  "madagascar 3: europe's most wanted": [
+    2.0,
+    2.0
+  ],
+  "odd squad: the movie": [
+    2.0,
+    2.0
+  ],
+  "the monkey king": [
+    2.0,
+    2.0
+  ],
+  "the polar express": [
+    2.0,
+    2.0
+  ],
+  "hilda and the mountain king": [
+    2.0,
+    2.0
+  ],
+  "honey, i shrunk the kids": [
+    2.0,
+    2.0
+  ],
+  "despicable me 4": [
+    2.0,
+    2.0
+  ],
+  "overcomer": [
+    2.0,
+    2.0
+  ],
+  "the intern": [
+    2.0,
+    2.0
+  ],
+  "moonrise kingdom": [
+    2.0,
+    2.0
+  ],
+  "shrek the third": [
+    2.0,
+    2.0
+  ],
+  "tipline mysteries: dial 1 for murder": [
+    2.0,
+    2.0
+  ],
+  "her": [
+    2.0,
+    2.0
+  ],
+  "the secret life of pets": [
+    2.0,
+    2.0
+  ],
+  "the killing of a chinese bookie": [
+    2.0,
+    2.0
+  ],
+  "a monster in paris": [
+    2.0,
+    2.0
+  ],
+  "the fountain": [
+    2.0,
+    2.0
+  ],
+  "leo": [
+    2.0,
+    2.0
+  ],
+  "phineas and ferb the movie: candace against the universe": [
+    2.0,
+    2.0
+  ],
+  "planes: fire & rescue": [
+    2.0,
+    2.0
+  ],
+  "hoosiers": [
+    2.0,
+    2.0
+  ],
+  "transformers one": [
+    2.0,
+    2.0
+  ],
+  "jumanji: the next level": [
+    2.0,
+    2.0
+  ],
+  "the birds": [
+    2.0,
+    2.0
+  ],
+  "the christmas chronicles: part two": [
+    2.0,
+    2.0
+  ],
+  "noelle": [
+    2.0,
+    2.0
+  ],
+  "the legend of frosty the snowman": [
+    2.0,
+    2.0
+  ],
+  "tom & jerry": [
+    2.0,
+    2.0
+  ],
+  "unplanned": [
+    2.0,
+    2.0
+  ],
+  "pok\u00e9mon the movie: mewtwo strikes back - evolution": [
+    2.0,
+    2.0
+  ],
+  "alvin and the chipmunks: the road chip": [
+    2.0,
+    2.0
+  ],
+  "the spy next door": [
+    2.0,
+    2.0
+  ],
+  "fountain of youth": [
+    2.0,
+    2.0
+  ],
+  "astro boy": [
+    2.0,
+    2.0
+  ],
+  "batman and robin": [
+    2.0,
+    2.0
+  ],
+  "inferno": [
+    2.0,
+    2.0
+  ],
+  "the santa clause": [
+    2.0,
+    2.0
+  ],
+  "transformers": [
+    2.0,
+    2.0
+  ],
+  "taste of cherry": [
+    2.0,
+    2.0
+  ],
+  "playing with fire": [
+    2.0,
+    2.0
+  ],
+  "eraserhead": [
+    2.0,
+    2.0
+  ],
+  "jimmy neutron: boy genius": [
+    2.0,
+    2.0
+  ],
+  "god's not dead 2": [
+    2.0,
+    2.0
+  ],
+  "better off dead...": [
+    2.0,
+    2.0
+  ],
+  "alvin and the chipmunks: the squeakquel": [
+    2.0,
+    2.0
+  ],
+  "the suite life movie": [
+    2.0,
+    2.0
+  ],
+  "how the grinch stole christmas": [
+    2.0,
+    2.0
+  ],
+  "horton hears a who!": [
+    2.0,
+    2.0
+  ],
+  "high school musical 3: senior year": [
+    2.0,
+    2.0
+  ],
+  "sing": [
+    2.0,
+    2.0
+  ],
+  "blue velvet": [
+    2.0,
+    2.0
+  ],
+  "the star": [
+    2.0,
+    2.0
+  ],
+  "goosebumps 2: haunted halloween": [
+    2.0,
+    2.0
+  ],
+  "minutemen": [
+    2.0,
+    2.0
+  ],
+  "radio rebel": [
+    2.0,
+    2.0
+  ],
+  "cars 3": [
+    2.0,
+    2.0
+  ],
+  "star wars: the last jedi": [
+    2.0,
+    2.0
+  ],
+  "mirror mirror": [
+    2.0,
+    2.0
+  ],
+  "fantastic four: rise of the silver surfer": [
+    2.0,
+    2.0
+  ],
+  "the substance": [
+    2.0,
+    2.0
+  ],
+  "secret magic control agency": [
+    2.0,
+    2.0
+  ],
+  "the pacifier": [
+    2.0,
+    2.0
+  ],
+  "toy story 4": [
+    2.0,
+    2.0
+  ],
+  "red one": [
+    2.0,
+    2.0
+  ],
+  "the smurfs": [
+    2.0,
+    2.0
+  ],
+  "the wolf of wall street": [
+    2.0,
+    2.0
+  ],
+  "alps": [
+    2.0,
+    2.0
+  ],
+  "the nut job 2: nutty by nature": [
+    2.0,
+    2.0
+  ],
+  "a wrinkle in time": [
+    2.0,
+    2.0
+  ],
+  "wish dragon": [
+    1.5,
+    2.0
+  ],
+  "the secret life of pets 2": [
+    1.5,
+    2.0
+  ],
+  "open season": [
+    1.5,
+    2.0
+  ],
+  "swiss family robinson": [
+    1.5,
+    2.0
+  ],
+  "all dogs go to heaven 2": [
+    1.5,
+    1.5
+  ],
+  "mary poppins": [
+    1.5,
+    1.5
+  ],
+  "the little rascals": [
+    1.5,
+    1.5
+  ],
+  "smallfoot": [
+    1.5,
+    1.5
+  ],
+  "escape from planet earth": [
+    1.5,
+    1.5
+  ],
+  "a dog's purpose": [
+    1.5,
+    1.5
+  ],
+  "the sleepover": [
+    1.5,
+    1.5
+  ],
+  "alpha and omega": [
+    1.5,
+    1.5
+  ],
+  "believe": [
+    1.5,
+    1.5
+  ],
+  "gnomeo & juliet": [
+    1.5,
+    1.5
+  ],
+  "bridge to terabithia": [
+    1.5,
+    1.5
+  ],
+  "escape to witch mountain": [
+    1.5,
+    1.5
+  ],
+  "thunderstruck": [
+    1.5,
+    1.5
+  ],
+  "doppelganger": [
+    1.5,
+    1.5
+  ],
+  "the jungle bunch": [
+    1.5,
+    1.5
+  ],
+  "marcel the shell with shoes on": [
+    1.5,
+    1.5
+  ],
+  "masters of the universe (1987)": [
+    1.5,
+    1.5
+  ],
+  "transformers: revenge of the fallen": [
+    1.5,
+    1.5
+  ],
+  "woody woodpecker goes to camp": [
+    1.5,
+    1.5
+  ],
+  "gulliver's travels": [
+    1.5,
+    1.5
+  ],
+  "dreamer: inspired by a true story": [
+    1.5,
+    1.5
+  ],
+  "the pink panther": [
+    1.5,
+    1.5
+  ],
+  "the swap": [
+    1.5,
+    1.5
+  ],
+  "garage sale mystery: guilty until proven innocent": [
+    1.5,
+    1.5
+  ],
+  "ooops! noah is gone...": [
+    1.5,
+    1.5
+  ],
+  "dolphin tale": [
+    1.5,
+    1.5
+  ],
+  "ralph breaks the internet": [
+    1.5,
+    1.5
+  ],
+  "year one": [
+    1.5,
+    1.5
+  ],
+  "toy story 5": [
+    1.5,
+    1.5
+  ],
+  "the jungle book (1967)": [
+    1.5,
+    1.5
+  ],
+  "the jungle book": [
+    0.5,
+    1.0
+  ],
+  "host": [
+    1.5,
+    1.5
+  ],
+  "the smurfs 2": [
+    1.5,
+    1.5
+  ],
+  "home team": [
+    1.5,
+    1.5
+  ],
+  "fantastic beasts: the secrets of dumbledore": [
+    1.5,
+    1.5
+  ],
+  "the adventures of sharkboy and lavagirl": [
+    1.5,
+    1.5
+  ],
+  "the sea beast": [
+    1.5,
+    1.5
+  ],
+  "wonder": [
+    1.5,
+    1.5
+  ],
+  "charlotte's web": [
+    1.5,
+    1.5
+  ],
+  "hugo": [
+    1.5,
+    1.5
+  ],
+  "kung fu panda 4": [
+    1.5,
+    1.5
+  ],
+  "the loud house movie": [
+    1.5,
+    1.5
+  ],
+  "the good dinosaur": [
+    1.5,
+    1.5
+  ],
+  "the ice age adventures of buck wild": [
+    1.5,
+    1.5
+  ],
+  "war of the worlds": [
+    1.5,
+    1.5
+  ],
+  "8-bit christmas": [
+    1.5,
+    1.5
+  ],
+  "henry danger: the movie": [
+    1.5,
+    1.5
+  ],
+  "man vs bee": [
+    1.5,
+    1.5
+  ],
+  "clifford the big red dog": [
+    1.5,
+    1.5
+  ],
+  "freaky friday": [
+    1.5,
+    1.5
+  ],
+  "extinct": [
+    1.5,
+    1.5
+  ],
+  "spaceballs": [
+    1.5,
+    1.5
+  ],
+  "a dog's way home": [
+    1.5,
+    1.5
+  ],
+  "the little rascals save the day": [
+    1.5,
+    1.5
+  ],
+  "opposite day": [
+    1.5,
+    1.5
+  ],
+  "honey, we shrunk ourselves": [
+    1.0,
+    1.5
+  ],
+  "abominable": [
+    1.0,
+    1.0
+  ],
+  "black bear": [
+    1.0,
+    1.0
+  ],
+  "minions: the rise of gru": [
+    1.0,
+    1.0
+  ],
+  "valiant": [
+    1.0,
+    1.0
+  ],
+  "a turtle's tale: sammy's adventures": [
+    1.0,
+    1.0
+  ],
+  "the main event": [
+    1.0,
+    1.0
+  ],
+  "jumanji": [
+    1.0,
+    1.0
+  ],
+  "tomorrowland": [
+    1.0,
+    1.0
+  ],
+  "jingle all the way": [
+    1.0,
+    1.0
+  ],
+  "if": [
+    1.0,
+    1.0
+  ],
+  "middle school: the worst years of my life": [
+    1.0,
+    1.0
+  ],
+  "the jungle bunch: operation meltdown": [
+    1.0,
+    1.0
+  ],
+  "dragon rider": [
+    1.0,
+    1.0
+  ],
+  "open season 2": [
+    1.0,
+    1.0
+  ],
+  "we can be heroes": [
+    1.0,
+    1.0
+  ],
+  "the lion king (1994)": [
+    1.0,
+    1.0
+  ],
+  "the lion king": [
+    1.0,
+    1.0
+  ],
+  "the big green": [
+    1.0,
+    1.0
+  ],
+  "scoob!": [
+    1.0,
+    1.0
+  ],
+  "open season 3": [
+    1.0,
+    1.0
+  ],
+  "cats & dogs: the revenge of kitty galore": [
+    1.0,
+    1.0
+  ],
+  "maya the bee movie": [
+    1.0,
+    1.0
+  ],
+  "12 dates of christmas": [
+    1.0,
+    1.0
+  ],
+  "the lion king (2019)": [
+    1.0,
+    1.0
+  ],
+  "air bud": [
+    1.0,
+    1.0
+  ],
+  "the knight before christmas": [
+    1.0,
+    1.0
+  ],
+  "pants on fire": [
+    1.0,
+    1.0
+  ],
+  "paw patrol: the movie": [
+    1.0,
+    1.0
+  ],
+  "poor things": [
+    1.0,
+    1.0
+  ],
+  "turner & hooch": [
+    1.0,
+    1.0
+  ],
+  "the flintstones": [
+    1.0,
+    1.0
+  ],
+  "the lion of judah": [
+    1.0,
+    1.0
+  ],
+  "finding \u02bbohana": [
+    1.0,
+    1.0
+  ],
+  "deep": [
+    1.0,
+    1.0
+  ],
+  "spooky buddies": [
+    1.0,
+    1.0
+  ],
+  "the jungle bunch: the movie": [
+    1.0,
+    1.0
+  ],
+  "fantastic four (2015)": [
+    1.0,
+    1.0
+  ],
+  "fantastic four": [
+    1.0,
+    1.0
+  ],
+  "fantastic four (2005)": [
+    1.0,
+    1.0
+  ],
+  "the guernsey literary & potato peel pie society": [
+    1.0,
+    1.0
+  ],
+  "garfield": [
+    1.0,
+    1.0
+  ],
+  "god's country song": [
+    1.0,
+    1.0
+  ],
+  "the jungle book (2016)": [
+    0.5,
+    1.0
+  ],
+  "sneakerella": [
+    0.5,
+    1.0
+  ],
+  "the mighty ducks": [
+    0.5,
+    1.0
+  ],
+  "spy kids: armageddon": [
+    0.5,
+    1.0
+  ],
+  "the little mermaid (1989)": [
+    0.5,
+    1.0
+  ],
+  "the little mermaid": [
+    0.5,
+    1.0
+  ],
+  "the little mermaid (2023)": [
+    0.5,
+    1.0
+  ],
+  "the emoji movie": [
+    0.5,
+    1.0
+  ],
+  "batman: the doom that came to gotham": [
+    0.5,
+    1.0
+  ],
+  "aniara": [
+    0.5,
+    1.0
+  ],
+  "peter pan & wendy": [
+    0.5,
+    1.0
+  ],
+  "switched": [
+    0.5,
+    1.0
+  ],
+  "beverly hills chihuahua": [
+    0.5,
+    1.0
+  ],
+  "harley quinn: a very problematic valentine's day special": [
+    0.5,
+    1.0
+  ],
+  "jungle shuffle": [
+    0.5,
+    1.0
+  ],
+  "norm of the north": [
+    0.5,
+    1.0
+  ],
+  "dear evan hansen": [
+    0.5,
+    1.0
+  ],
+  "finding \u2018ohana": [
+    0.5,
+    1.0
+  ],
+  "mamma mia!": [
+    0.5,
+    1.0
+  ],
+  "air bud: world pup": [
+    0.5,
+    1.0
+  ],
+  "a minecraft movie": [
+    0.5,
+    1.0
+  ],
+  "mufasa: the lion king": [
+    0.5,
+    0.5
+  ],
+  "yes day": [
+    0.5,
+    0.5
+  ],
+  "sharkula": [
+    0.5,
+    0.5
+  ],
+  "the son of bigfoot": [
+    0.5,
+    0.5
+  ],
+  "norm of the north: keys to the kingdom": [
+    0.5,
+    0.5
+  ],
+  "dolphin tale 2": [
+    0.5,
+    0.5
+  ],
+  "spellbound": [
+    0.5,
+    0.5
+  ],
+  "bigfoot family": [
+    0.5,
+    0.5
+  ],
+  "chitty chitty bang bang": [
+    0.5,
+    0.5
+  ],
+  "the art of self-defense": [
+    0.5,
+    0.5
+  ],
+  "spy kids: all the time in the world": [
+    0.5,
+    0.5
+  ],
+  "marmaduke (2010)": [
+    0.5,
+    0.5
+  ],
+  "marmaduke": [
+    0.5,
+    0.5
+  ],
+  "marmaduke (2022)": [
+    0.5,
+    0.5
+  ],
+  "coco": [
+    0.5,
+    0.5
+  ],
+  "trolls world tour": [
+    0.5,
+    0.5
+  ],
+  "lightyear": [
+    0.5,
+    0.5
+  ],
+  "men": [
+    0.5,
+    0.5
+  ]
 }

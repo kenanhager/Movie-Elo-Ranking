@@ -2,7 +2,7 @@
 
 1. SYSTEM OVERVIEW
 
-The Movie Elo & Distribution Ranking System is a lightweight, zero-dependency 
+The Movie Elo & Distribution Ranking System is a lightweight
 Python-based web application designed to evaluate, rank, and analyze film 
 databases. The software integrates pairwise Elo rating algorithms, cluster 
 ranking models, dynamic programming cutoffs, and standard normal distribution 
@@ -17,17 +17,67 @@ Prerequisites: Python 3.x environment.
 Step 1: Dependency Installation
 Execute the following command in your system terminal to install required external packages:
 
-    pip install requests
+    python3 -m pip install -r requirements.txt
 
 Step 2: Server Initialization
 Launch the application server by executing the main script:
 
-    python main.py
+    python3 main.py
 
 Step 3: Web Interface Access
 Access the web user interface via a standard web browser at:
 
     http://localhost:8000
+
+The interface uses a charcoal, ivory, and amber theme with a responsive
+poster gallery, an optional list view, and shared navigation on every page.
+Match voting, focused matchups, cluster ranking, search, film profiles,
+all three distribution methods, and CSV import/export remain available.
+Missing posters use a local illustrated cover. An empty collection includes
+links to import ratings or add a film.
+
+Custom posters: Open a film profile and expand **Change poster** beneath its
+poster. Upload a PNG, JPEG, GIF, or WebP image (up to 8 MB), or paste a direct
+HTTP/HTTPS image link, then choose **Save poster**. The choice appears in the
+gallery, search, matchups, clusters, and bin views. **Use automatic poster**
+restores the cached TMDB poster. Posters are matched by title and year, so
+different releases of the same title can have different artwork.
+
+Uploaded images stay on your device in `posters/`; the choices are stored in
+`custom_posters.json`. Back up both alongside your CSV files if you move the app.
+CSV exports retain their existing format and do not include poster images.
+
+Performance: Page rendering no longer waits for remote poster lookups. The
+browser loads uncached posters on demand, with concurrent lookups limited and
+duplicate requests combined. Distribution calculations use a linear pass per
+rating level, reuse unchanged results, and skip calculations already covered by
+imported method values. The previous bin-size cap is relaxed when it would
+otherwise make a valid distribution impossible.
+
+The interface assets live in `static/app.css`, `static/app.js`, and `static/*.svg`.
+Theme colors and text remain configurable in `config.py`.
+
+The **How to use** page (`/help`) covers importing, voting, undo, cluster ranking,
+poster changes, and exports. Individual profiles show collection rank, films
+outranked, the ranking score, and adjacent titles. Detailed distribution metrics
+remain on Analytics.
+
+**Back to rankings** preserves the gallery page, grid/list layout, and scroll
+position, including after changing a poster. Position is saved in the current
+browser tab; without browser storage, the link returns to the film's gallery
+anchor on its original page.
+
+**Undo last vote** reverses both score changes from a win or a draw and reopens
+that pair. Up to 100 votes are kept in `vote_history.json`, including across app
+restarts. Importing data, adding/removing films, or saving a cluster clears this
+undo history. Voting uses form submissions followed by redirects, so refreshing
+the result page does not cast the same vote again.
+
+Run the integration checks with:
+
+    python3 -m unittest discover -s tests -v
+
+These checks use temporary storage and do not modify your movie database.
 
 --------------------------------------------------------------------------------
 3. DATA INGESTION & CSV SPECIFICATIONS
