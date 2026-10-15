@@ -1,4 +1,5 @@
-from collections import Counter
+from collections import Counter, deque
+from functools import lru_cache
 import math
 import random
 import re
@@ -47,122 +48,114 @@ def rating_to_bin_idx(val):
 
 
 def compute_doc3_methods(movie_list, ratings_map, ratings_list):
-    """Computes Method 1 (Preserved Count Distribution) and Method 2 (Optimal L1 DP Cutoffs)."""
-    if not movie_list:
+    """Reuse distributions until films, Elo, original ratings, or overrides change."""
+    movies = tuple(tuple(movie[:3]) for movie in sorted(movie_list, key=lambda movie: movie[1], reverse=True))
+    original = tuple((key, tuple(values)) for key, values in sorted(ratings_map.items()))
+    imported = tuple((key, tuple(values)) for key, values in sorted(AppState.imported_methods.items()))
+    exact, optimal, exact_counts, optimal_counts = _cached_doc3_methods(movies, original, tuple(ratings_list), imported)
+
+    return dict(exact), dict(optimal), list(exact_counts), list(optimal_counts)
+
+
+def _minimum_deviation_sequence(old_ratings, levels, max_span):
+    """Compute the same bounded L1 cutoffs in O(films × rating levels).
+
+    Prefix costs turn each segment cost into a subtraction. A sliding minimum
+    selects its predecessor without trying every possible segment length.
+    Equal candidates retain the earliest predecessor, as in the original DP.
+    """
+    count = len(old_ratings)
+    previous = [0.0] + [math.inf] * count
+    parents = []
+    for rating in levels:
+        prefix = [0.0]
+        for old in old_ratings:
+            prefix.append(prefix[-1] + abs(old - rating))
+        current = [math.inf] * (count + 1)
+        parent = [0] * (count + 1)
+        candidates = deque()
+        for end in range(count + 1):
+            while candidates and candidates[0][0] < end - max_span:
+                candidates.popleft()
+            if math.isfinite(previous[end]):
+                cost = previous[end] - prefix[end]
+                while candidates and candidates[-1][1] > cost:
+                    candidates.pop()
+                candidates.append((end, cost))
+            if candidates:
+                start, cost = candidates[0]
+                current[end] = cost + prefix[end]
+                parent[end] = start
+        previous = current
+        parents.append(parent)
+    sequence = [0.0] * count
+    end = count
+    for index in range(len(levels) - 1, -1, -1):
+        start = parents[index][end]
+        sequence[start:end] = [levels[index]] * (end - start)
+        end = start
+    return sequence
+
+
+@lru_cache(maxsize=2)
+def _cached_doc3_methods(movies, original, ratings, imported):
+    if not movies:
         return {}, {}, [0] * 10, [0] * 10
-
-    sorted_movies = sorted(movie_list, key=lambda x: x[1], reverse=True)
-    n_movies = len(sorted_movies)
-
-    possible_levels = [5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5]
-    clean_ratings = []
-    for r in ratings_list:
+    count = len(movies)
+    default_levels = [5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, .5]
+    clean = []
+    for value in ratings:
         try:
-            r_float = float(r)
-            if r_float <= 5.0:
-                clean_ratings.append(round(r_float * 2) / 2)
-        except (ValueError, TypeError):
+            value = float(value)
+            if math.isfinite(value) and value <= 5:
+                clean.append(round(value * 2) / 2)
+        except (ValueError, TypeError, OverflowError):
             continue
+    if not clean:
+        clean = (default_levels * (count // 10 + 1))[:count]
+    frequencies = Counter(clean)
+    exact_sequence = [rating for rating in sorted(frequencies, reverse=True) for _ in range(frequencies[rating])]
+    exact = {movie[0].lower(): exact_sequence[min(index, len(exact_sequence) - 1)] for index, movie in enumerate(movies)}
+    overrides = dict(imported)
+    movie_overrides = []
+    for movie in movies:
+        base, _ = parse_title_and_year(movie[0], movie[2] if len(movie) > 2 else '')
+        movie_overrides.append(overrides.get(movie[0].lower()) or overrides.get(base.lower()))
+    if all(override and override[1] is not None for override in movie_overrides):
 
-    if not clean_ratings:
-        clean_ratings = possible_levels * (n_movies // 10 + 1)
-        clean_ratings = clean_ratings[:n_movies]
+        optimal_sequence = [override[1] for override in movie_overrides]
+    else:
+        average = sum(clean) / len(clean)
+        original_map = {key: deque(values) for key, values in original}
+        old = []
+        for movie in movies:
+            base, _ = parse_title_and_year(movie[0], movie[2] if len(movie) > 2 else '')
+            values = original_map.get(movie[0].lower()) or original_map.get(base.lower())
+            old.append(values.popleft() if values else average)
+        levels = sorted(set(clean), reverse=True)
+        max_span = max(60, int(count * .25))
 
-    # --- METHOD 1: Preserved Count Distribution ---
-    counts = Counter(clean_ratings)
-    sorted_rating_levels = sorted(counts.keys(), reverse=True)
 
-    exact_seq = []
-    for r_lvl in sorted_rating_levels:
-        exact_seq.extend([r_lvl] * counts[r_lvl])
+        if len(levels) * max_span < count:
+            max_span = count
+        optimal_sequence = _minimum_deviation_sequence(old, levels, max_span)
+    optimal = {}
+    for index, movie in enumerate(movies):
+        key = movie[0].lower()
+        optimal[key] = optimal_sequence[index]
+        override = movie_overrides[index]
+        if override:
+            if override[0] is not None:
+                exact[key] = override[0]
+            if override[1] is not None:
+                optimal[key] = override[1]
+    exact_counts, optimal_counts = [0] * 10, [0] * 10
+    for movie in movies:
+        key = movie[0].lower()
+        exact_counts[rating_to_bin_idx(exact[key])] += 1
+        optimal_counts[rating_to_bin_idx(optimal[key])] += 1
+    return exact, optimal, exact_counts, optimal_counts
 
-    exact_ratings_map = {}
-    for idx, movie in enumerate(sorted_movies):
-        assigned = exact_seq[idx] if idx < len(exact_seq) else (exact_seq[-1] if exact_seq else 3.0)
-        exact_ratings_map[movie[0].lower()] = assigned
-
-    # --- METHOD 2: Minimum Total Rating Deviation (Optimal L1 DP) ---
-    avg_r = sum(clean_ratings) / len(clean_ratings) if clean_ratings else 3.0
-    old_ratings = []
-    temp_map = {k: list(v) for k, v in ratings_map.items()}
-    for movie in sorted_movies:
-        t_full = movie[0].lower()
-        base_t, _ = parse_title_and_year(movie[0], movie[2] if len(movie) > 2 else "")
-        base_t_low = base_t.lower()
-
-        if t_full in temp_map and temp_map[t_full]:
-            orig = temp_map[t_full].pop(0)
-        elif base_t_low in temp_map and temp_map[base_t_low]:
-            orig = temp_map[base_t_low].pop(0)
-        else:
-            orig = avg_r
-
-        old_ratings.append(orig)
-
-    possible_ratings = sorted(list(set(clean_ratings)), reverse=True)
-    if not possible_ratings:
-        possible_ratings = possible_levels
-
-    n_levels = len(possible_ratings)
-
-    dp = [[float("inf")] * (n_levels + 1) for _ in range(n_movies + 1)]
-    parent = [[0] * (n_levels + 1) for _ in range(n_movies + 1)]
-    dp[0][0] = 0
-
-    for j in range(n_levels):
-        r_val = possible_ratings[j]
-        for i in range(n_movies + 1):
-            if dp[i][j] == float("inf"):
-                continue
-            curr_cost = dp[i][j]
-            if dp[i][j + 1] > curr_cost:
-                dp[i][j + 1] = curr_cost
-                parent[i][j + 1] = i
-
-            max_span = min(n_movies - i, max(60, int(n_movies * 0.25)))
-            for k in range(i + 1, i + max_span + 1):
-                curr_cost += abs(old_ratings[k - 1] - r_val)
-                if curr_cost < dp[k][j + 1]:
-                    dp[k][j + 1] = curr_cost
-                    parent[k][j + 1] = i
-
-    optimal_seq = [0.0] * n_movies
-    curr_i = n_movies
-    for j in range(n_levels, 0, -1):
-        prev_i = parent[curr_i][j]
-        for idx in range(prev_i, curr_i):
-            optimal_seq[idx] = possible_ratings[j - 1]
-        curr_i = prev_i
-
-    optimal_ratings_map = {}
-    for idx, movie in enumerate(sorted_movies):
-        optimal_ratings_map[movie[0].lower()] = optimal_seq[idx]
-
-    # Override with exact values directly imported from CSV columns
-    for movie in sorted_movies:
-        t_low = movie[0].lower()
-        base_t, _ = parse_title_and_year(movie[0], movie[2] if len(movie) > 2 else "")
-        base_low = base_t.lower()
-
-        imported = AppState.imported_methods.get(t_low) or AppState.imported_methods.get(base_low)
-        if imported:
-            m1_val, m2_val = imported
-            if m1_val is not None:
-                exact_ratings_map[t_low] = m1_val
-            if m2_val is not None:
-                optimal_ratings_map[t_low] = m2_val
-
-    exact_bin_counts = [0] * 10
-    optimal_bin_counts = [0] * 10
-
-    for movie in sorted_movies:
-        t_low = movie[0].lower()
-        r_m1 = exact_ratings_map.get(t_low, 3.0)
-        r_m2 = optimal_ratings_map.get(t_low, 3.0)
-        exact_bin_counts[rating_to_bin_idx(r_m1)] += 1
-        optimal_bin_counts[rating_to_bin_idx(r_m2)] += 1
-
-    return exact_ratings_map, optimal_ratings_map, exact_bin_counts, optimal_bin_counts
 
 def get_elo_matched_pair(movie_list, target_movie=None, proximity_ratio=0.75):
     if len(movie_list) < 2:

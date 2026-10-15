@@ -1,8 +1,13 @@
 from elopy import Implementation
+from threading import RLock
 
 
 class AppState:
     movie_elo = []
     elo = Implementation()
     poster_cache = {}
-    imported_methods = {}  # {title_lower: (method1_rating, method2_rating)}
+    custom_posters = {}
+    vote_history = []
+    processed_vote_ids = []
+    lock = RLock()
+    imported_methods = {}

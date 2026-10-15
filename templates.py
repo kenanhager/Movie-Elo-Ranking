@@ -1,1114 +1,288 @@
+import json
 import math
-import urllib.parse
+from html import escape
+from urllib.parse import quote, urlencode
+from uuid import uuid4
 
-from config import (
-    NORMAL_BIN_BOUNDS,
-    TEXT_CONTENT,
-    TMDB_API_KEY,
-    get_color_css,
-)
-from data_manager import (
-    compute_doc3_methods,
-    get_movie_original_ratings,
-    get_poster_url,
-    prefetch_posters,
-)
-from elo_engine import (
-    get_elo_matched_pair,
-    get_normal_bin_info,
-    normal_cdf,
-    rating_to_bin_idx,
-    select_rank10_movies,
-)
+from config import NORMAL_BIN_BOUNDS, TEXT_CONTENT, TMDB_API_KEY
+from data_manager import compute_doc3_methods, get_movie_original_ratings
+from posters import get_poster_src, get_custom_poster
+from elo_engine import get_elo_matched_pair, get_normal_bin_info, rating_to_bin_idx, select_rank10_movies
 from state import AppState
+from ui import empty_page, empty_state, header_nav, icon, movie_card, page as render_page, poster, safe_return_path, movie_anchor, movie_link
 
 
 def generate_header_nav(active="rankings", query_val=""):
-    return f"""
-    <div class="nav-bar">
-        <a href="/" class="nav-link {'active' if active == 'rankings' else ''}">Rankings Gallery</a>
-        <a href="/vote" class="nav-link {'active' if active == 'vote' else ''}">Match Voting</a>
-        <a href="/rank10" class="nav-link {'active' if active == 'rank10' else ''}">Rank 10 Cluster</a>
-        <a href="/add" class="nav-link {'active' if active == 'add' else ''}">Add Movie</a>
-        <a href="/stats" class="nav-link {'active' if active == 'stats' else ''}">Distribution Analytics</a>
-        <a href="/import" class="nav-link {'active' if active == 'import' else ''}">CSV Management</a>
-        <form action="/search" method="GET" class="search-form">
-            <input type="text" name="q" placeholder="{TEXT_CONTENT['search_placeholder']}" value="{query_val}" required class="search-input">
-            <button type="submit" class="search-btn">{TEXT_CONTENT['search_btn']}</button>
-        </form>
-    </div>
-    """
+    return header_nav(active, query_val)
+
+
+def _refresh_rankings():
+    for item in AppState.movie_elo:
+        item[1] = AppState.elo.getPlayerRating(item[0])
+    AppState.movie_elo.sort(key=lambda movie: movie[1], reverse=True)
+
+
+def _distribution():
+    values = [movie[1] for movie in AppState.movie_elo]
+    mean = sum(values) / len(values)
+    variance = sum((value - mean) ** 2 for value in values) / len(values)
+    return mean, math.sqrt(variance) if variance > 0 else 1.0
+
+
+def _view_toggle():
+    return f'<div class="view-toggle" role="group" aria-label="Collection layout"><button class="icon-button" data-view="grid" aria-label="Poster grid" aria-pressed="true">{icon("grid")}</button><button class="icon-button" data-view="list" aria-label="Film list" aria-pressed="false">{icon("list")}</button></div>'
 
 
 def generate_gallery_html(api_key=TMDB_API_KEY, page=1, per_page=100):
-    for item in AppState.movie_elo:
-        item[1] = AppState.elo.getPlayerRating(item[0])
-    AppState.movie_elo.sort(key=lambda x: x[1], reverse=True)
-
+    _refresh_rankings()
     total_movies = len(AppState.movie_elo)
     total_pages = max(1, math.ceil(total_movies / per_page))
     page = max(1, min(page, total_pages))
-
     start_idx = (page - 1) * per_page
-    end_idx = min(start_idx + per_page, total_movies)
-    page_movies = AppState.movie_elo[start_idx:end_idx]
-
-    prefetch_posters(page_movies, api_key)
-
-    cards_html = ""
-    for i, item in enumerate(page_movies):
-        rank = start_idx + i + 1
-        title = item[0]
-        rating = item[1]
-        date = item[2]
-        poster_url = get_poster_url(title, api_key, date)
-        date_html = f'<div class="year">({date})</div>' if date else ""
-        title_enc = urllib.parse.quote(str(title))
-
-        cards_html += f"""
-        <div class="card">
-            <div class="badge">#{rank}</div>
-            <a href="/movie?title={title_enc}">
-                <img src="{poster_url}" alt="{title}" loading="lazy">
-            </a>
-            <div class="title">{title}</div>
-            {date_html}
-            <div class="rating">Elo: {rating:.1f}</div>
-            <div class="card-actions">
-                <a href="/vote?target={title_enc}" class="card-btn btn-sub" title="Vote Matchup">🎯</a>
-                <a href="/movie?title={title_enc}" class="card-btn btn-stats" title="View Stats">📊</a>
-                <a href="/delete?title={title_enc}" class="card-btn btn-danger" onclick="return confirm('Are you sure you want to delete {title}?');" title="Delete">🗑️</a>
-            </div>
-        </div>
-        """
-
-    prev_btn = f'<a href="/?page={page - 1}" class="btn">← Previous</a>' if page > 1 else '<span class="btn disabled">← Previous</span>'
-    next_btn = f'<a href="/?page={page + 1}" class="btn">Next →</a>' if page < total_pages else '<span class="btn disabled">Next →</span>'
-
-    pagination_html = f"""
-    <div class="pagination">
-        {prev_btn}
-        <span class="page-info">Page {page} of {total_pages} ({total_movies} Movies Total)</span>
-        {next_btn}
-    </div>
-    """
-
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{TEXT_CONTENT['gallery_title']}</title>
-    <style>
-        {get_color_css()}
-        .grid {{ display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }}
-        .card {{ 
-            position: relative; background: var(--bg-card); padding: 10px; border-radius: 12px; 
-            width: 185px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
-            transition: transform 0.2s ease, border-color 0.2s ease; border: 1px solid var(--border-color);
-            display: flex; flex-direction: column; justify-content: space-between;
-        }}
-        .card:hover {{ transform: translateY(-4px); border-color: var(--accent-magenta); }}
-        .badge {{ position: absolute; top: 15px; left: 15px; background: rgba(15, 6, 23, 0.85); color: var(--accent-pink); font-weight: bold; font-size: 13px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--accent-pink); z-index: 2; }}
-        .card img {{ width: 100%; height: 278px; object-fit: cover; border-radius: 8px; background: var(--bg-input); cursor: pointer; }}
-        .title {{ font-size: 14px; font-weight: bold; margin-top: 8px; word-wrap: break-word; color: var(--text-primary); }}
-        .year {{ font-size: 12px; color: var(--text-secondary); margin-top: 2px; }}
-        .rating {{ font-size: 13px; color: var(--accent-pink); font-weight: bold; margin-top: 4px; }}
-        .card-actions {{ display: flex; gap: 5px; margin-top: 10px; justify-content: center; }}
-        .card-btn {{ font-size: 13px; font-weight: bold; padding: 5px 8px; border-radius: 6px; text-decoration: none; flex: 1; text-align: center; }}
-        .btn-sub {{ background: var(--accent-dark-plum); color: var(--accent-pink); border: 1px solid var(--accent-pink); }}
-        .btn-sub:hover {{ background: var(--accent-pink); color: #000; }}
-        .btn-stats {{ background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); }}
-        .btn-stats:hover {{ background: var(--accent-plum); color: #fff; }}
-        .btn-danger {{ background: var(--btn-danger-bg); color: #ff6b81; border: 1px solid var(--btn-danger); }}
-        .btn-danger:hover {{ background: var(--btn-danger); color: white; }}
-        .pagination {{ display: flex; justify-content: center; align-items: center; gap: 15px; margin: 25px 0; }}
-        .btn {{ padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; background-color: var(--accent-magenta); color: white; transition: background 0.2s; }}
-        .btn:hover {{ background-color: var(--accent-pink); color: #000; }}
-        .btn.disabled {{ background-color: var(--bg-input); color: #777; cursor: not-allowed; }}
-        .page-info {{ font-size: 15px; color: var(--text-secondary); }}
-    </style>
-</head>
-<body>
-    <h1>{TEXT_CONTENT['gallery_title']}</h1>
-    <p class="subtitle">{TEXT_CONTENT['gallery_subtitle']}</p>
-    {generate_header_nav("rankings")}
-    {pagination_html}
-    <div class="grid">{cards_html}</div>
-    {pagination_html}
-</body>
-</html>
-"""
+    page_movies = AppState.movie_elo[start_idx:start_idx + per_page]
+    cards = "".join(movie_card(start_idx + i + 1, item[0], item[2], item[1], get_poster_src(item[0], api_key, item[2]), return_to=f'/?page={page}') for i, item in enumerate(page_movies))
+    if not cards:
+        cards = empty_state("No films in your collection", "Import your Letterboxd ratings or add a film to start ranking.")
+    mean_elo = sum(movie[1] for movie in AppState.movie_elo) / total_movies if total_movies else None
+    top_movie = AppState.movie_elo[0] if total_movies else None
+    top_html = f'<a class="metric-value top-film-value" data-movie-link href="{escape(movie_link(top_movie[0], f'/?page={page}#' + movie_anchor(top_movie[0], top_movie[2])), quote=True)}">{escape(str(top_movie[0]))} {icon("arrow")}</a>' if top_movie else '<span class="metric-value top-film-value">No films yet</span>'
+    hero_actions = f'<div class="hero-actions"><a class="button primary" href="/vote">{icon("vote")}Start a matchup</a><a class="button secondary" href="/rank10">{icon("rank")}Rank a cluster</a><a class="button secondary" href="/help">{icon("help")}How to use</a></div>'
+    pagination = ""
+    if total_movies:
+        previous = f'<a class="button secondary" href="/?page={page - 1}">{icon("left")}Previous</a>' if page > 1 else f'<span class="button disabled" aria-disabled="true">{icon("left")}Previous</span>'
+        next_link = f'<a class="button secondary" href="/?page={page + 1}">Next{icon("arrow")}</a>' if page < total_pages else f'<span class="button disabled" aria-disabled="true">Next{icon("arrow")}</span>'
+        pagination = f'<nav class="pagination" aria-label="Collection pages">{previous}<span class="page-info">{start_idx + 1}–{min(start_idx + per_page, total_movies)} of {total_movies} films · Page {page} of {total_pages}</span>{next_link}</nav>'
+    mean_html = f'{mean_elo:,.1f}' if mean_elo is not None else '—'
+    content = f"""
+    <section class="collection-summary" aria-label="Collection overview">
+        <div class="collection-stat"><span class="metric-label">Films in your collection</span><span class="metric-value">{total_movies:,}</span></div>
+        <div class="collection-stat"><span class="metric-label">Average Elo rating</span><span class="metric-value">{mean_html}<small>Elo</small></span></div>
+        <div class="collection-stat"><span class="metric-label">At the top of your list</span>{top_html}</div>
+    </section>
+    <section aria-label="Film rankings"><div class="section-toolbar"><div class="section-title"><h2>Your rankings</h2><span class="count-pill">{total_movies} films</span></div><div class="toolbar-controls"><span class="sort-label">Highest Elo first ↓</span>{_view_toggle()}</div></div>
+        <div class="movie-grid">{cards}</div>{pagination}
+    </section>"""
+    title_lead, separator, title_tail = TEXT_CONTENT['gallery_title'].partition(', ')
+    heading = f'{escape(title_lead)},<br><em>{escape(title_tail)}</em>' if separator else escape(title_lead)
+    return render_page(heading, TEXT_CONTENT['gallery_subtitle'], 'rankings', content, hero_extra=hero_actions)
 
 
 def generate_rank10_html(api_key=TMDB_API_KEY):
     count = min(10, len(AppState.movie_elo))
     if count < 2:
-        return "<h1>Not enough movies to rank!</h1>"
-
-    cluster_sample = select_rank10_movies(AppState.movie_elo, count=count, proximity_ratio=0.70)
-    cluster_sample.sort(key=lambda x: x[1], reverse=True)
-
-    prefetch_posters(cluster_sample, api_key)
-
-    list_items_html = ""
-    for idx, movie in enumerate(cluster_sample):
-        title = movie[0]
-        rating = movie[1]
-        date = movie[2]
-        poster_url = get_poster_url(title, api_key, date)
-        date_html = f'<span class="item-year">({date})</span>' if date else ""
-
-        list_items_html += f"""
-        <li class="rank-item" draggable="true" data-title="{title}">
-            <div class="rank-num">#{idx + 1}</div>
-            <img src="{poster_url}" alt="{title}">
-            <div class="item-info">
-                <div class="item-title">{title} {date_html}</div>
-                <div class="item-elo">Elo: {rating:.1f}</div>
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn-move" onclick="moveItem(this, -1)">▲</button>
-                <button type="button" class="btn-move" onclick="moveItem(this, 1)">▼</button>
-            </div>
-        </li>
-        """
-
-    title_text = TEXT_CONTENT['rank10_title'].format(count=count)
-    subtitle_text = TEXT_CONTENT['rank10_subtitle'].format(count=count)
-
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{title_text}</title>
-    <style>
-        {get_color_css()}
-        .rank-container {{ max-width: 650px; margin: 0 auto; }}
-        .rank-list {{ list-style: none; padding: 0; margin: 0; }}
-        .rank-item {{ 
-            display: flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border-color); 
-            margin-bottom: 10px; border-radius: 8px; padding: 10px 15px; cursor: grab;
-            user-select: none; transition: background 0.2s;
-        }}
-        .rank-item:hover {{ background: var(--bg-input); border-color: var(--accent-pink); }}
-        .rank-num {{ font-size: 20px; font-weight: bold; color: var(--accent-pink); width: 45px; flex-shrink: 0; }}
-        .rank-item img {{ width: 50px; height: 75px; object-fit: cover; border-radius: 6px; margin-right: 15px; background: var(--bg-input); }}
-        .item-info {{ flex-grow: 1; }}
-        .item-title {{ font-size: 16px; font-weight: bold; color: var(--text-primary); }}
-        .item-year {{ font-size: 13px; color: var(--text-secondary); font-weight: normal; margin-left: 6px; }}
-        .item-elo {{ font-size: 13px; color: var(--accent-pink); margin-top: 4px; }}
-        .btn-group {{ display: flex; flex-direction: column; gap: 4px; }}
-        .btn-move {{ background: var(--bg-input); color: white; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }}
-        .btn-move:hover {{ background: var(--accent-magenta); }}
-        .submit-container {{ text-align: center; margin-top: 25px; display: flex; justify-content: center; gap: 15px; }}
-        .btn-submit {{ padding: 12px 24px; font-size: 16px; font-weight: bold; background-color: var(--accent-magenta); color: white; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }}
-        .btn-submit:hover {{ background-color: var(--accent-pink); color: #000; }}
-        .btn-skip {{ padding: 12px 24px; font-size: 16px; font-weight: bold; background-color: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; text-decoration: none; }}
-        .btn-skip:hover {{ background-color: var(--accent-plum); color: white; }}
-    </style>
-</head>
-<body>
-    <h1>{title_text}</h1>
-    <p class="subtitle">{subtitle_text}</p>
-    {generate_header_nav("rank10")}
-
-    <div class="rank-container">
-        <form id="ranking-form" action="/rank10" method="GET">
-            <ul id="rank-list" class="rank-list">
-                {list_items_html}
-            </ul>
-            <div class="submit-container">
-                <button type="button" class="btn-submit" onclick="submitRanking()">{TEXT_CONTENT['rank10_submit_btn']}</button>
-                <a href="/rank10" class="btn-skip">{TEXT_CONTENT['rank10_skip_btn']}</a>
-            </div>
-        </form>
-    </div>
-
-    <script>
-        let dragItem = null;
-        document.querySelectorAll('.rank-item').forEach(item => {{
-            item.addEventListener('dragstart', (e) => {{ dragItem = item; e.dataTransfer.effectAllowed = 'move'; }});
-            item.addEventListener('dragover', (e) => {{ e.preventDefault(); }});
-            item.addEventListener('drop', (e) => {{
-                e.preventDefault();
-                if (dragItem && dragItem !== item) {{
-                    let list = item.parentNode;
-                    let items = Array.from(list.children);
-                    if (items.indexOf(dragItem) < items.indexOf(item)) {{
-                        list.insertBefore(dragItem, item.nextSibling);
-                    }} else {{
-                        list.insertBefore(dragItem, item);
-                    }}
-                    updateRankNumbers();
-                }}
-            }});
-        }});
-        function moveItem(btn, direction) {{
-            let item = btn.closest('.rank-item');
-            let list = item.parentNode;
-            if (direction === -1 && item.previousElementSibling) {{
-                list.insertBefore(item, item.previousElementSibling);
-            }} else if (direction === 1 && item.nextElementSibling) {{
-                list.insertBefore(item.nextElementSibling, item);
-            }}
-            updateRankNumbers();
-        }}
-        function updateRankNumbers() {{
-            document.querySelectorAll('.rank-item').forEach((item, index) => {{
-                item.querySelector('.rank-num').innerText = '#' + (index + 1);
-            }});
-        }}
-        function submitRanking() {{
-            const items = document.querySelectorAll('.rank-item');
-            const form = document.getElementById('ranking-form');
-            items.forEach(item => {{
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'ranked';
-                input.value = item.getAttribute('data-title');
-                form.appendChild(input);
-            }});
-            form.submit();
-        }}
-    </script>
-</body>
-</html>
-"""
+        return empty_page('rank10', TEXT_CONTENT['rank10_title'], 'Add at least two films to start ranking a cluster.')
+    cluster = select_rank10_movies(AppState.movie_elo, count=count, proximity_ratio=0.70)
+    cluster.sort(key=lambda movie: movie[1], reverse=True)
+    items = ""
+    for index, movie in enumerate(cluster):
+        title, rating, year = movie[:3]
+        items += f"""<li class="rank-item" draggable="true" data-title="{escape(str(title), quote=True)}">
+            <div class="rank-num">{index + 1:02d}</div>{poster(get_poster_src(title, api_key, year), title)}
+            <div class="item-info"><div class="item-title">{escape(str(title))}<span class="item-year">{escape(str(year)) if year else ''}</span></div><div class="item-elo">{rating:,.1f} Elo</div></div>
+            <div class="btn-group"><button type="button" class="btn-move" data-move="up" aria-label="Move {escape(str(title), quote=True)} up">{icon('up')}</button><button type="button" class="btn-move" data-move="down" aria-label="Move {escape(str(title), quote=True)} down">{icon('down')}</button></div></li>"""
+    content = f"""<div class="rank-container"><div class="rank-intro"><span>YOUR ORDER · BEST TO WORST</span><span>{count * (count - 1) // 2} pairwise comparisons</span></div>
+        <form id="ranking-form" action="/rank10" method="GET"><ol id="rank-list" class="rank-list">{items}</ol>
+        <div class="submit-container"><button type="submit" class="button primary">{icon('check')}{TEXT_CONTENT['rank10_submit_btn']}</button><a class="button secondary" href="/rank10">{TEXT_CONTENT['rank10_skip_btn']}{icon('arrow')}</a></div></form></div>"""
+    return render_page(TEXT_CONTENT['rank10_title'], TEXT_CONTENT['rank10_subtitle'].format(count=count), 'rank10', content)
 
 
-def generate_vote_html(api_key=TMDB_API_KEY, target_title=None):
+def generate_vote_html(api_key=TMDB_API_KEY, target_title=None, pair_titles=None, message='', error=False):
     if len(AppState.movie_elo) < 2:
-        return "<h1>Not enough movies loaded to compare!</h1>"
-
-    target_movie = None
-    if target_title:
-        for item in AppState.movie_elo:
-            if item[0].lower() == target_title.lower():
-                target_movie = item
-                break
-
-    m1, m2 = get_elo_matched_pair(AppState.movie_elo, target_movie=target_movie, proximity_ratio=0.75)
+        return empty_page('vote', TEXT_CONTENT['vote_title'], 'Add at least two films to begin head-to-head matchups.')
+    _refresh_rankings()
+    target_movie = next((movie for movie in AppState.movie_elo if target_title and movie[0].lower() == target_title.lower()), None)
+    pair = [next((movie for movie in AppState.movie_elo if movie[0] == title), None) for title in (pair_titles or [])]
+    if len(pair) == 2 and all(pair) and pair[0][0] != pair[1][0]:
+        m1, m2 = pair
+    else:
+        m1, m2 = get_elo_matched_pair(AppState.movie_elo, target_movie=target_movie, proximity_ratio=.75)
     if not m1 or not m2:
-        return "<h1>Not enough movies to compare!</h1>"
-
-    prefetch_posters([m1, m2], api_key)
-
-    p1_poster = get_poster_url(m1[0], api_key, m1[2])
-    p2_poster = get_poster_url(m2[0], api_key, m2[2])
-
-    m1_year_html = f'<div class="vote-year">({m1[2]})</div>' if m1[2] else ""
-    m2_year_html = f'<div class="vote-year">({m2[2]})</div>' if m2[2] else ""
-
-    m1_enc = urllib.parse.quote(str(m1[0]))
-    m2_enc = urllib.parse.quote(str(m2[0]))
-
-    target_query = f"&target={m1_enc}" if target_movie else ""
-    skip_query = f"/vote?target={m1_enc}" if target_movie else "/vote"
-
-    elo_diff = abs(m1[1] - m2[1])
-
-    spotlight_header = ""
-    if target_movie:
-        spotlight_header = f"""
-        <div class="spotlight-banner">
-             <strong>{TEXT_CONTENT['vote_spotlight_label']}</strong> Ranking <span>"{m1[0]}"</span> (Elo: {m1[1]:.1f})
-            <a href="/vote" class="exit-spotlight">✕ Exit Subcategory</a>
-        </div>
-        """
-
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{TEXT_CONTENT['vote_title']}</title>
-    <style>
-        {get_color_css()}
-        .match-info {{ text-align: center; color: var(--accent-pink); font-size: 13px; font-weight: bold; margin-bottom: 15px; }}
-        .spotlight-banner {{ text-align: center; background: var(--bg-card); border: 1px solid var(--accent-magenta); color: white; padding: 10px 20px; border-radius: 8px; max-width: 600px; margin: 0 auto 20px auto; font-size: 15px; }}
-        .spotlight-banner span {{ color: var(--accent-pink); font-weight: bold; }}
-        .exit-spotlight {{ margin-left: 15px; color: #ff6b81; text-decoration: none; font-weight: bold; background: rgba(255, 71, 87, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid #ff4757; }}
-        .exit-spotlight:hover {{ background: #ff4757; color: white; }}
-        .matchup-container {{ display: flex; justify-content: center; align-items: center; gap: 40px; margin-top: 20px; flex-wrap: wrap; }}
-        .vote-card {{ background: var(--bg-card); padding: 20px; border-radius: 12px; width: 220px; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,0.6); position: relative; border: 1px solid var(--border-color); }}
-        .target-tag {{ position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent-magenta); color: white; font-weight: bold; font-size: 11px; padding: 3px 10px; border-radius: 12px; border: 1px solid var(--accent-pink); }}
-        .vote-card img {{ width: 100%; height: 320px; object-fit: cover; border-radius: 8px; background: var(--bg-input); }}
-        .vote-title {{ font-size: 16px; font-weight: bold; margin: 12px 0 2px 0; color: var(--text-primary); }}
-        .vote-year {{ font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }}
-        .vote-elo {{ font-size: 14px; color: var(--accent-pink); font-weight: bold; margin-bottom: 15px; }}
-        .vs {{ font-size: 28px; font-weight: bold; color: var(--accent-pink); }}
-        .vote-btn {{ display: block; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; text-decoration: none; box-sizing: border-box; transition: background 0.2s; }}
-        .btn-left {{ background-color: var(--accent-blue); color: white; }}
-        .btn-left:hover {{ background-color: var(--accent-pink); color: #000; }}
-        .btn-right {{ background-color: var(--accent-blue); color: white; }}
-        .btn-right:hover {{ background-color: var(--accent-pink); color: #000; }}
-        .btn-tie {{ background-color: var(--accent-plum); color: white; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 8px; border: 1px solid var(--border-color); }}
-        .btn-tie:hover {{ background-color: var(--accent-pink); color: #000; }}
-        .btn-skip {{ background-color: var(--bg-input); color: var(--text-secondary); padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 8px; border: 1px solid var(--border-color); }}
-        .btn-skip:hover {{ background-color: var(--accent-plum); color: #fff; }}
-        .controls {{ display: flex; justify-content: center; gap: 15px; margin-top: 30px; }}
-    </style>
-</head>
-<body>
-    <h1>{TEXT_CONTENT['vote_title']}</h1>
-    <div class="match-info"> Matchup Rating Gap: Δ {elo_diff:.1f} Elo</div>
-    {generate_header_nav("vote")}
-    {spotlight_header}
-    
-    <div class="matchup-container">
-        <div class="vote-card">
-            {"<div class='target-tag'>TARGET MOVIE</div>" if target_movie else ""}
-            <img src="{p1_poster}" alt="{m1[0]}">
-            <div class="vote-title">{m1[0]}</div>
-            {m1_year_html}
-            <div class="vote-elo">Elo: {m1[1]:.1f}</div>
-            <a href="/vote?winner=1&m1={m1_enc}&m2={m2_enc}{target_query}" class="vote-btn btn-left">Vote Option 1</a>
-        </div>
-
-        <div class="vs">VS</div>
-
-        <div class="vote-card">
-            <img src="{p2_poster}" alt="{m2[0]}">
-            <div class="vote-title">{m2[0]}</div>
-            {m2_year_html}
-            <div class="vote-elo">Elo: {m2[1]:.1f}</div>
-            <a href="/vote?winner=2&m1={m1_enc}&m2={m2_enc}{target_query}" class="vote-btn btn-right">Vote Option 2</a>
-        </div>
-    </div>
-
-    <div class="controls">
-        <a href="/vote?winner=3&m1={m1_enc}&m2={m2_enc}{target_query}" class="btn-tie"> Tie / Draw</a>
-        <a href="{skip_query}" class="btn-skip">➡ Skip Matchup</a>
-    </div>
-</body>
-</html>
-"""
+        return empty_page('vote', TEXT_CONTENT['vote_title'], 'Add at least two films to begin head-to-head matchups.')
+    skip_query = f'/vote?target={quote(str(m1[0]), safe="")}' if target_movie else '/vote'
+    spotlight = f'<div class="spotlight-banner"><span><strong>{TEXT_CONTENT["vote_spotlight_label"]}</strong> {escape(str(m1[0]))}</span><a href="/vote" class="exit-spotlight">Exit focused mode ×</a></div>' if target_movie else ''
+    vote_id = uuid4().hex
+    shared = ''.join(f'<input type="hidden" name="{name}" value="{escape(str(value), quote=True)}">' for name, value in {'m1': m1[0], 'm2': m2[0], 'vote_id': vote_id, 'target': target_title or ''}.items())
+    def vote_form(option, label, css_class, symbol=''):
+        return f'<form action="/vote" method="POST">{shared}<input type="hidden" name="winner" value="{option}"><button type="submit" class="button {css_class}">{label}{symbol}</button></form>'
+    cards = []
+    for option, movie in enumerate([m1, m2], 1):
+        title, rating, year = movie[:3]
+        cards.append(f"""<article class="vote-card">{'<span class="target-tag">IN FOCUS</span>' if target_movie and option == 1 else ''}
+            {poster(get_poster_src(title, api_key, year), title, lazy=False)}<div class="vote-title">{escape(str(title))}</div>
+            <div class="vote-meta"><span>{escape(str(year)) if year else 'Year unlisted'}</span><span>{rating:,.1f} Elo</span></div>
+            {vote_form(option, 'Choose this film', 'primary full-width', icon('arrow'))}</article>""")
+    latest = AppState.vote_history[-1] if AppState.vote_history else None
+    undo_form = f'<form action="/vote/undo" method="POST"><input type="hidden" name="vote_id" value="{escape(latest["id"], quote=True) if latest else ""}"><button type="submit" class="button secondary" {"disabled" if not latest else ""}>{icon("undo")}Undo last vote</button></form>'
+    status = f'<div class="status-msg {"error" if error else ""}" role="status">{escape(message)}</div>' if message else ''
+    content = f"""{status}{spotlight}<div class="matchup-container">{cards[0]}<div class="vs" aria-hidden="true">vs.</div>{cards[1]}</div>
+        <div class="controls">{vote_form(3, "It's a tie", 'secondary')}<a href="{skip_query}" class="button secondary">Skip this pair{icon('arrow')}</a>{undo_form}</div>"""
+    return render_page(TEXT_CONTENT['vote_title'], 'Choose your favorite, mark a tie, or skip. Use Undo last vote to correct a choice.', 'vote', content)
 
 
-def generate_bin_view_html(api_key=TMDB_API_KEY, bin_idx=0, method="norm"):
-    for item in AppState.movie_elo:
-        item[1] = AppState.elo.getPlayerRating(item[0])
-    AppState.movie_elo.sort(key=lambda x: x[1], reverse=True)
-
-    total_movies = len(AppState.movie_elo)
-    if total_movies == 0:
-        return "<h1>No movies loaded!</h1>"
-
-    elo_vals = [m[1] for m in AppState.movie_elo]
-    mean_elo = sum(elo_vals) / total_movies
-    variance = sum((e - mean_elo) ** 2 for e in elo_vals) / total_movies
-    std_dev = math.sqrt(variance) if variance > 0 else 1.0
-
+def generate_bin_view_html(api_key=TMDB_API_KEY, bin_idx=0, method='norm'):
+    _refresh_rankings()
+    if not AppState.movie_elo:
+        return empty_page('stats', 'Distribution bins', 'Add films to explore the ten rating distribution bins.')
+    mean, std = _distribution()
     bin_idx = max(0, min(9, bin_idx))
     bin_num = bin_idx + 1
-
     ratings_map, ratings_list = get_movie_original_ratings()
     exact_map, optimal_map, _, _ = compute_doc3_methods(AppState.movie_elo, ratings_map, ratings_list)
-
-    if method == "exact":
-        method_title = "Method 1: Preserved Count Distribution"
-        theme_color = "#3a7ecc"
-        bin_label = f"Bin {bin_num} ({0.5 + bin_idx * 0.5:.1f}★ Level)"
-    elif method == "optimal":
-        method_title = "Method 2: Optimal L1 DP Cutoffs"
-        theme_color = "#c61f99"
-        bin_label = f"Bin {bin_num} ({0.5 + bin_idx * 0.5:.1f}★ Level)"
-    else:
-        method = "norm"
-        method_title = "Standard Normal Z-Score (σ)"
-        theme_color = "#e893d2"
-        bin_label = NORMAL_BIN_BOUNDS[bin_idx][2]
-
-    bin_movies = []
-    for rank, item in enumerate(AppState.movie_elo, 1):
-        title = item[0]
-        rating = item[1]
-        z = (rating - mean_elo) / std_dev
-
-        if method == "exact":
-            assigned_r = exact_map.get(title.lower(), 3.0)
-            b_idx = rating_to_bin_idx(assigned_r)
-            rating_disp = f"Method 1: {assigned_r:.1f}★ ({rating:.1f} Elo)"
-        elif method == "optimal":
-            assigned_r = optimal_map.get(title.lower(), 3.0)
-            b_idx = rating_to_bin_idx(assigned_r)
-            rating_disp = f"Method 2: {assigned_r:.1f}★ ({rating:.1f} Elo)"
+    methods = {'norm': 'Standard normal', 'exact': 'Method 1 · Preserved counts', 'optimal': 'Method 2 · Optimal L1 cutoffs'}
+    method = method if method in methods else 'norm'
+    bin_label = NORMAL_BIN_BOUNDS[bin_idx][2].strip() if method == 'norm' else f'{0.5 + bin_idx * 0.5:.1f}★ level'
+    selected = []
+    for rank, movie in enumerate(AppState.movie_elo, 1):
+        title, rating, year = movie[:3]
+        z_score = (rating - mean) / std
+        if method in ('exact', 'optimal'):
+            assigned = (exact_map if method == 'exact' else optimal_map).get(title.lower(), 3.0)
+            assigned_bin = rating_to_bin_idx(assigned)
+            rating_text = f'{assigned:.1f}★ · {rating:,.1f} Elo'
         else:
-            b_idx, _, _, _ = get_normal_bin_info(z)
-            rating_disp = f"Elo: {rating:.1f} ({z:+.2f}σ)"
-
-        if b_idx == bin_idx:
-            bin_movies.append((rank, item, z, rating_disp))
-
-    prefetch_posters([m[1] for m in bin_movies], api_key)
-
-    dist_toggle_html = f"""
-    <div class="dist-toggle">
-        <a href="/bin?bin={bin_num}&method=norm" class="dist-btn {'active-norm' if method == 'norm' else ''}">Standard Normal Z-Score (σ)</a>
-        <a href="/bin?bin={bin_num}&method=exact" class="dist-btn {'active-exact' if method == 'exact' else ''}">Method 1: Preserved Count Dist.</a>
-        <a href="/bin?bin={bin_num}&method=optimal" class="dist-btn {'active-optimal' if method == 'optimal' else ''}">Method 2: Optimal L1 DP Cutoffs</a>
-    </div>
-    """
-
-    bin_nav_html = '<div class="bin-selector">'
-    for i in range(10):
-        active_cls = "active" if i == bin_idx else ""
-        bin_nav_html += f'<a href="/bin?bin={i + 1}&method={method}" class="bin-btn {active_cls}">Bin {i + 1}</a>'
-    bin_nav_html += "</div>"
-
-    cards_html = ""
-    if bin_movies:
-        for rank, item, z, rating_disp in bin_movies:
-            title = item[0]
-            date = item[2]
-            poster_url = get_poster_url(title, api_key, date)
-            date_html = f'<div class="year">({date})</div>' if date else ""
-            title_enc = urllib.parse.quote(str(title))
-
-            cards_html += f"""
-            <div class="card" style="border-color: {theme_color}aa;">
-                <div class="badge">#{rank}</div>
-                <a href="/movie?title={title_enc}">
-                    <img src="{poster_url}" alt="{title}" loading="lazy">
-                </a>
-                <div class="title">{title}</div>
-                {date_html}
-                <div class="rating" style="color: {theme_color};">{rating_disp}</div>
-                <div class="card-actions">
-                    <a href="/vote?target={title_enc}" class="card-btn btn-sub" title="Vote Matchup">🎯</a>
-                    <a href="/movie?title={title_enc}" class="card-btn btn-stats" title="View Stats">📊</a>
-                    <a href="/delete?title={title_enc}" class="card-btn btn-danger" onclick="return confirm('Are you sure you want to delete {title}?');" title="Delete">🗑️</a>
-                </div>
-            </div>
-            """
-    else:
-        cards_html = f"""
-        <div class="no-results">
-            <h2>No movies currently in Bin {bin_num} for {method_title}</h2>
-            <p>Rank or add more movies to populate this bucket.</p>
-        </div>
-        """
-
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>Bin {bin_num} - {method_title}</title>
-    <style>
-        {get_color_css()}
-        h1 {{ color: {theme_color}; }}
-        .dist-toggle {{ display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }}
-        .dist-btn {{ padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; text-decoration: none; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border-color); }}
-        .dist-btn.active-norm {{ background: rgba(232, 147, 210, 0.25); color: #e893d2; border-color: #e893d2; }}
-        .dist-btn.active-exact {{ background: rgba(58, 126, 204, 0.25); color: #3a7ecc; border-color: #3a7ecc; }}
-        .dist-btn.active-optimal {{ background: rgba(198, 31, 153, 0.25); color: #c61f99; border-color: #c61f99; }}
-        
-        .bin-selector {{ display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; max-width: 900px; margin-left: auto; margin-right: auto; }}
-        .bin-btn {{ padding: 8px 12px; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; }}
-        .bin-btn.active, .bin-btn:hover {{ background: {theme_color}; color: white; border-color: {theme_color}; }}
-
-        .grid {{ display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }}
-        .card {{ 
-            position: relative; background: var(--bg-card); padding: 10px; border-radius: 12px; 
-            width: 185px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
-            transition: transform 0.2s ease, border-color 0.2s ease; border: 1px solid var(--border-color);
-            display: flex; flex-direction: column; justify-content: space-between;
-        }}
-        .card:hover {{ transform: translateY(-4px); border-color: {theme_color}; }}
-        .badge {{ position: absolute; top: 15px; left: 15px; background: rgba(15, 6, 23, 0.85); color: var(--accent-pink); font-weight: bold; font-size: 13px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--accent-pink); z-index: 2; }}
-        .card img {{ width: 100%; height: 278px; object-fit: cover; border-radius: 8px; background: var(--bg-input); cursor: pointer; }}
-        .title {{ font-size: 14px; font-weight: bold; margin-top: 8px; word-wrap: break-word; color: var(--text-primary); }}
-        .year {{ font-size: 12px; color: var(--text-secondary); margin-top: 2px; }}
-        .rating {{ font-size: 13px; font-weight: bold; margin-top: 4px; }}
-        .card-actions {{ display: flex; gap: 5px; margin-top: 10px; justify-content: center; }}
-        .card-btn {{ font-size: 13px; font-weight: bold; padding: 5px 8px; border-radius: 6px; text-decoration: none; flex: 1; text-align: center; }}
-        .btn-sub {{ background: var(--accent-dark-plum); color: var(--accent-pink); border: 1px solid var(--accent-pink); }}
-        .btn-sub:hover {{ background: var(--accent-pink); color: #000; }}
-        .btn-stats {{ background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); }}
-        .btn-stats:hover {{ background: var(--accent-plum); color: #fff; }}
-        .btn-danger {{ background: var(--btn-danger-bg); color: #ff6b81; border: 1px solid var(--btn-danger); }}
-        .btn-danger:hover {{ background: var(--btn-danger); color: white; }}
-        .no-results {{ text-align: center; margin-top: 40px; background: var(--bg-card); padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); max-width: 500px; margin: 40px auto; }}
-    </style>
-</head>
-<body>
-    <h1>Bin {bin_num} Movies ({bin_label})</h1>
-    <p class="subtitle">{method_title} — Showing {len(bin_movies)} movie(s)</p>
-    {generate_header_nav("stats")}
-    {dist_toggle_html}
-    {bin_nav_html}
-
-    <div class="grid">
-        {cards_html}
-    </div>
-</body>
-</html>
-"""
+            assigned_bin, _, _, _ = get_normal_bin_info(z_score)
+            rating_text = f'{rating:,.1f} · {z_score:+.2f}σ'
+        if assigned_bin == bin_idx:
+            selected.append((rank, movie, rating_text))
+    cards = ''.join(movie_card(rank, movie[0], movie[2], movie[1], get_poster_src(movie[0], api_key, movie[2]), rating_text, return_to=f'/bin?bin={bin_num}&method={method}') for rank, movie, rating_text in selected)
+    if not cards:
+        cards = empty_state('No films in this bin', 'No films are in this bin yet. Try another bin or refine your rankings.', actions=False)
+    method_links = ''.join(f'<a href="/bin?bin={bin_num}&method={key}" class="dist-btn {"active-" + key if method == key else ""}" {"aria-current=page" if method == key else ""}>{label}</a>' for key, label in methods.items())
+    bin_links = ''.join(f'<a href="/bin?bin={index + 1}&method={method}" class="bin-btn {"active" if bin_idx == index else ""}" {"aria-current=page" if bin_idx == index else ""}>Bin {index + 1}</a>' for index in range(10))
+    content = f'<div class="bin-controls"><nav class="dist-toggle" aria-label="Distribution method">{method_links}</nav><nav class="bin-selector" aria-label="Rating bins">{bin_links}</nav></div><div class="section-toolbar"><div class="section-title"><h2>Films in this bin</h2><span class="count-pill">{len(selected)}</span></div>{_view_toggle()}</div><div class="movie-grid">{cards}</div>'
+    return render_page(f'Bin {bin_num} <em>· {escape(bin_label)}</em>', f'{methods[method]} distribution · {len(selected)} films. Rankings reflect their position in your full collection.', 'stats', content, eyebrow='DISTRIBUTION EXPLORER')
 
 
-def generate_search_html(api_key=TMDB_API_KEY, query=""):
-    for item in AppState.movie_elo:
-        item[1] = AppState.elo.getPlayerRating(item[0])
-    AppState.movie_elo.sort(key=lambda x: x[1], reverse=True)
-
-    query_clean = query.strip().lower()
-    matches = []
-
-    for idx, item in enumerate(AppState.movie_elo):
-        title = item[0]
-        if query_clean in title.lower():
-            rank = idx + 1
-            matches.append((rank, item))
-
-    prefetch_posters([m[1] for m in matches], api_key)
-
-    results_html = ""
-    if matches:
-        for rank, item in matches:
-            title = item[0]
-            rating = item[1]
-            date = item[2]
-            poster_url = get_poster_url(title, api_key, date)
-            date_html = f'<div class="year">({date})</div>' if date else ""
-            title_enc = urllib.parse.quote(str(title))
-
-            results_html += f"""
-            <div class="card">
-                <div class="badge">#{rank}</div>
-                <a href="/movie?title={title_enc}">
-                    <img src="{poster_url}" alt="{title}">
-                </a>
-                <div class="title">{title}</div>
-                {date_html}
-                <div class="rating">Elo: {rating:.1f}</div>
-                <div class="card-actions">
-                    <a href="/vote?target={title_enc}" class="card-btn btn-sub" title="Vote Matchup">🎯</a>
-                    <a href="/movie?title={title_enc}" class="card-btn btn-stats" title="View Stats">📊</a>
-                    <a href="/delete?title={title_enc}" class="card-btn btn-danger" onclick="return confirm('Are you sure you want to delete {title}?');" title="Delete">🗑️</a>
-                </div>
-            </div>
-            """
-    else:
-        results_html = f"""
-        <div class="no-results">
-            <h2>No movies found matching "{query}"</h2>
-            <p>Try searching for a different title or add a new movie to the collection.</p>
-            <a href="/add" class="btn-add-new">+ Add "{query}" to Database</a>
-        </div>
-        """
-
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{TEXT_CONTENT['search_title']} - {query}</title>
-    <style>
-        {get_color_css()}
-        .grid {{ display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }}
-        .card {{ 
-            position: relative; background: var(--bg-card); padding: 10px; border-radius: 12px; 
-            width: 185px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
-            border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between;
-        }}
-        .badge {{ position: absolute; top: 15px; left: 15px; background: rgba(15, 6, 23, 0.85); color: var(--accent-pink); font-weight: bold; font-size: 13px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--accent-pink); z-index: 2; }}
-        .card img {{ width: 100%; height: 278px; object-fit: cover; border-radius: 8px; background: var(--bg-input); cursor: pointer; }}
-        .title {{ font-size: 14px; font-weight: bold; margin-top: 8px; word-wrap: break-word; color: var(--text-primary); }}
-        .year {{ font-size: 12px; color: var(--text-secondary); margin-top: 2px; }}
-        .rating {{ font-size: 13px; color: var(--accent-pink); font-weight: bold; margin-top: 4px; }}
-        .card-actions {{ display: flex; gap: 5px; margin-top: 10px; justify-content: center; }}
-        .card-btn {{ font-size: 13px; font-weight: bold; padding: 5px 8px; border-radius: 6px; text-decoration: none; flex: 1; text-align: center; }}
-        .btn-sub {{ background: var(--accent-dark-plum); color: var(--accent-pink); border: 1px solid var(--accent-pink); }}
-        .btn-stats {{ background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); }}
-        .btn-danger {{ background: var(--btn-danger-bg); color: #ff6b81; border: 1px solid var(--btn-danger); }}
-        .btn-danger:hover {{ background: var(--btn-danger); color: white; }}
-        .no-results {{ text-align: center; margin-top: 50px; background: var(--bg-card); padding: 40px; border-radius: 12px; border: 1px solid var(--border-color); max-width: 500px; margin: 50px auto 0 auto; }}
-        .btn-add-new {{ display: inline-block; margin-top: 15px; padding: 10px 20px; background: var(--accent-magenta); color: white; font-weight: bold; border-radius: 8px; text-decoration: none; }}
-    </style>
-</head>
-<body>
-    <h1>{TEXT_CONTENT['search_title']}</h1>
-    <p class="subtitle">Found {len(matches)} movie match(es) for "{query}"</p>
-    {generate_header_nav("", query)}
-
-    <div class="grid">
-        {results_html}
-    </div>
-</body>
-</html>
-"""
+def generate_search_html(api_key=TMDB_API_KEY, query=''):
+    _refresh_rankings()
+    matches = [(index + 1, movie) for index, movie in enumerate(AppState.movie_elo) if query.strip().lower() in movie[0].lower()]
+    cards = ''.join(movie_card(rank, movie[0], movie[2], movie[1], get_poster_src(movie[0], api_key, movie[2]), return_to='/search?' + urlencode({'q': query})) for rank, movie in matches)
+    if not matches:
+        cards = empty_state('No matching films', f'No titles match “{query}”. Try a different search or add the film to your collection.')
+    content = f'<div class="section-toolbar"><div class="section-title"><h2>Matching films</h2><span class="count-pill">{len(matches)}</span></div>{_view_toggle()}</div><div class="movie-grid">{cards}</div>'
+    return render_page('Search results', f'{len(matches)} results for “{query}” in your collection.', 'search', content, query=query)
 
 
-def generate_movie_detail_html(api_key=TMDB_API_KEY, title_query=""):
-    for item in AppState.movie_elo:
-        item[1] = AppState.elo.getPlayerRating(item[0])
-    AppState.movie_elo.sort(key=lambda x: x[1], reverse=True)
+def _poster_editor(title, year, show_error=False, return_to='/'):
+    custom = get_custom_poster(title, year)
+    image_link = custom if custom and custom.startswith(('http://', 'https://')) else ''
+    safe_title = escape(str(title), quote=True)
+    return_field = f'<input type="hidden" name="return_to" value="{escape(safe_return_path(return_to), quote=True)}">'
+    reset_form = f'<form action="/poster" method="POST" class="poster-reset">{return_field}<input type="hidden" name="title" value="{safe_title}"><input type="hidden" name="action" value="reset"><button type="submit" class="button secondary full-width">Use automatic poster</button></form>' if custom else ''
+    return f"""<details class="poster-editor" {'open' if show_error else ''}><summary>{icon('film')}Change poster{icon('down')}</summary>
+        <div class="poster-editor-body">
+        <form action="/poster" method="POST" enctype="multipart/form-data" id="poster-form">{return_field}
+            <input type="hidden" name="title" value="{safe_title}"><input type="hidden" name="action" value="save">
+            <label for="poster-file">Upload an image</label><input type="file" id="poster-file" name="poster_file" accept="image/png,image/jpeg,image/gif,image/webp" aria-describedby="poster-help">
+            <p class="poster-help" id="poster-help">PNG, JPEG, GIF, or WebP · up to 8 MB</p>
+            <div class="poster-divider">or use an image link</div><label for="poster-url" class="sr-only">Direct image link</label><input type="url" id="poster-url" name="poster_url" placeholder="https://…/poster.jpg" value="{escape(image_link, quote=True)}">
+            <div class="poster-preview" hidden><img id="poster-preview" alt="Custom poster preview"><span>Preview</span></div><p class="poster-feedback" id="poster-feedback" role="status"></p>
+            <button type="submit" class="button primary full-width">{icon('check')}Save poster</button>
+        </form>{reset_form}<p class="poster-help">Your choice applies everywhere in your collection.</p></div></details>"""
 
-    total_movies = len(AppState.movie_elo)
-    target_movie = None
-    rank = -1
 
-    for idx, item in enumerate(AppState.movie_elo):
-        if item[0].lower() == title_query.lower():
-            target_movie = item
-            rank = idx + 1
-            break
-
+def generate_movie_detail_html(api_key=TMDB_API_KEY, title_query='', message='', poster_error=False, return_to='/'):
+    _refresh_rankings()
+    return_to = safe_return_path(return_to)
+    back = f'<a href="{escape(return_to, quote=True)}" class="button secondary gallery-back" data-gallery-back>{icon("left")}Back to rankings</a>'
+    target_movie = next((movie for movie in AppState.movie_elo if movie[0].lower() == title_query.lower()), None)
     if not target_movie:
-        return f"""<!DOCTYPE html>
-<html>
-<head><title>Movie Not Found</title></head>
-<body style="background:#0f0617; color:#ede5f6; font-family:'Segoe UI', Arial, sans-serif; text-align:center; padding:50px;">
-    <h1>Movie "{title_query}" Not Found</h1>
-    <p><a href="/" style="color:#e893d2;">Return to Rankings Gallery</a></p>
-</body>
-</html>"""
-
-    title = target_movie[0]
-    elo_val = target_movie[1]
-    date = target_movie[2]
-    title_enc = urllib.parse.quote(str(title))
-
-    prefetch_posters([target_movie], api_key)
-    poster_url = get_poster_url(title, api_key, date)
-
-    elo_vals = [m[1] for m in AppState.movie_elo]
-    mean_elo = sum(elo_vals) / total_movies
-    variance = sum((e - mean_elo) ** 2 for e in elo_vals) / total_movies
-    std_dev = math.sqrt(variance) if variance > 0 else 1.0
-
-    z_score = (elo_val - mean_elo) / std_dev
-
-    ratings_map, ratings_list = get_movie_original_ratings()
-    exact_map, optimal_map, _, _ = compute_doc3_methods(AppState.movie_elo, ratings_map, ratings_list)
-    exact_rating = exact_map.get(title.lower(), 3.0)
-    optimal_rating = optimal_map.get(title.lower(), 3.0)
-
-    norm_bin_idx, norm_bin_label, _, _ = get_normal_bin_info(z_score)
-    norm_bin_num = norm_bin_idx + 1
-
-    percentile = normal_cdf(z_score) * 100.0
-
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{TEXT_CONTENT['detail_title']} - {title}</title>
-    <style>
-        {get_color_css()}
-        .detail-card {{ max-width: 820px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; display: flex; gap: 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); flex-wrap: wrap; }}
-        .detail-poster {{ width: 220px; text-align: center; }}
-        .detail-poster img {{ width: 100%; height: 330px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); }}
-        .detail-content {{ flex: 1; min-width: 280px; }}
-        .movie-title {{ font-size: 26px; font-weight: bold; margin: 0 0 5px 0; color: var(--text-primary); text-align: left; }}
-        .movie-year {{ font-size: 16px; color: var(--text-secondary); margin-bottom: 20px; }}
-        
-        .stats-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }}
-        .stat-box {{ background: var(--bg-input); border: 1px solid var(--border-color); padding: 12px 15px; border-radius: 8px; }}
-        .stat-val {{ font-size: 18px; font-weight: bold; color: var(--accent-pink); margin-top: 4px; }}
-        .stat-label {{ font-size: 11px; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }}
-
-        .gauge-container {{ background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 25px; }}
-        .gauge-title {{ font-size: 13px; font-weight: bold; color: var(--text-secondary); margin-bottom: 10px; }}
-        .gauge-bar {{ height: 16px; background: var(--bg-main); border-radius: 8px; position: relative; overflow: hidden; border: 1px solid var(--border-color); }}
-        .gauge-fill {{ height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-magenta), var(--accent-pink)); border-radius: 8px; }}
-        .gauge-markers {{ display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-top: 6px; }}
-
-        .action-buttons {{ display: flex; gap: 15px; flex-wrap: wrap; }}
-        .btn-action {{ padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; text-align: center; flex: 1; transition: background 0.2s; }}
-        .btn-vote {{ background: var(--accent-magenta); color: white; }}
-        .btn-vote:hover {{ background: var(--accent-pink); color: #000; }}
-        .btn-back {{ background: var(--bg-input); color: white; border: 1px solid var(--border-color); }}
-        .btn-back:hover {{ background: var(--accent-plum); }}
-        .btn-delete {{ background: var(--btn-danger-bg); color: #ff6b81; border: 1px solid var(--btn-danger); }}
-        .btn-delete:hover {{ background: var(--btn-danger); color: white; }}
-    </style>
-</head>
-<body>
-    <h1>{TEXT_CONTENT['detail_title']}</h1>
-    <p class="subtitle">{TEXT_CONTENT['detail_subtitle']}</p>
-    {generate_header_nav("")}
-
-    <div class="detail-card">
-        <div class="detail-poster">
-            <img src="{poster_url}" alt="{title}">
-            <div style="margin-top: 12px; font-size: 15px; color: var(--accent-pink); font-weight: bold;">Overall Rank: #{rank} / {total_movies}</div>
-        </div>
-
-        <div class="detail-content">
-            <div class="movie-title">{title}</div>
-            <div class="movie-year">{f'Released in {date}' if date else 'Release year unlisted'}</div>
-
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-label">ELO RATING</div>
-                    <div class="stat-val">{elo_val:.1f} Elo</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-label">Z-SCORE / STDEV</div>
-                    <div class="stat-val">{z_score:+.2f} σ</div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Percentile: {percentile:.1f}%</div>
-                </div>
-                <a href="/bin?bin={norm_bin_num}" style="text-decoration: none;">
-                    <div class="stat-box" style="border-color: var(--accent-pink);">
-                        <div class="stat-label" style="color: var(--text-secondary);">STANDARD NORMAL BIN</div>
-                        <div class="stat-val" style="color: var(--accent-pink);">Bin {norm_bin_num} / 10 ↗</div>
-                        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">{norm_bin_label}</div>
-                    </div>
-                </a>
-                <div class="stat-box" style="border-color: var(--accent-blue);">
-                    <div class="stat-label" style="color: var(--accent-blue);">METHOD 1 (PRESERVED COUNTS)</div>
-                    <div class="stat-val" style="color: var(--accent-blue);">{exact_rating:.1f} / 5.0</div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Preserved Count Dist.</div>
-                </div>
-                <div class="stat-box" style="border-color: var(--accent-magenta); grid-column: span 2;">
-                    <div class="stat-label" style="color: var(--accent-magenta);">METHOD 2 (OPTIMAL L1 DP CUTOFFS)</div>
-                    <div class="stat-val" style="color: var(--accent-magenta);">{optimal_rating:.1f} / 5.0</div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Minimum Rating Deviation Cutoffs</div>
-                </div>
-            </div>
-
-            <div class="gauge-container">
-                <div class="gauge-title">GAUSSIAN BELL CURVE POSITION ({percentile:.1f}th Percentile)</div>
-                <div class="gauge-bar">
-                    <div class="gauge-fill" style="width: {max(2.0, min(100.0, percentile))}%;"></div>
-                </div>
-                <div class="gauge-markers">
-                    <span>-3.0σ (Bottom)</span>
-                    <span>0.0σ (Mean 50%)</span>
-                    <span>+3.0σ (Top)</span>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <a href="/vote?target={title_enc}" class="btn-action btn-vote">🎯 Matchup Vote</a>
-                <a href="/stats" class="btn-action btn-back">📊 View Distribution Analytics</a>
-                <a href="/delete?title={title_enc}" class="btn-action btn-delete" onclick="return confirm('Are you sure you want to permanently delete {title}?');">🗑️ Delete Movie</a>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-"""
+        return render_page('Film not found', 'This film is not in your current collection.', 'detail', back + empty_state('Film not found', f'No film matches “{title_query}”.'))
+    index = AppState.movie_elo.index(target_movie)
+    rank, total = index + 1, len(AppState.movie_elo)
+    title, elo_val, year = target_movie[:3]
+    title_enc = quote(str(title), safe='')
+    below = sum(movie[1] < elo_val for movie in AppState.movie_elo)
+    tied = sum(movie[1] == elo_val for movie in AppState.movie_elo) - 1
+    placement = 'Only film in collection' if total == 1 else 'Top 10% of your ranking' if rank / total <= .1 else 'Upper half of your ranking' if rank / total <= .5 else 'Lower half of your ranking'
+    tie_note = f'<p class="profile-note">Shares its score with {tied} other {"film" if tied == 1 else "films"}.</p>' if tied else ''
+    neighbors = ''
+    for neighbor_index, label in [(index - 1, 'One place above'), (index + 1, 'One place below')]:
+        if 0 <= neighbor_index < total:
+            neighbor = AppState.movie_elo[neighbor_index]
+            neighbors += f'<a class="neighbor-film" href="{escape(movie_link(neighbor[0], return_to), quote=True)}">{poster(get_poster_src(neighbor[0], api_key, neighbor[2]), neighbor[0])}<span><small>{label} · #{neighbor_index + 1}</small><strong>{escape(str(neighbor[0]))}</strong><span>{escape(str(neighbor[2])) if neighbor[2] else "Year unlisted"}</span></span>{icon("arrow")}</a>'
+    nearby = f'<section class="nearby-section"><h2>Nearby in your ranking</h2><div class="neighbor-list">{neighbors}</div></section>' if neighbors else ''
+    confirmation = escape(json.dumps(f'Remove “{title}” from your collection?'), quote=True)
+    status = f'<div class="status-msg {"error" if poster_error else ""}" role="status">{escape(message)}</div>' if message else ''
+    content = f"""{back}{status}<article class="detail-card"><div class="detail-poster">{poster(get_poster_src(title, api_key, year), title, lazy=False)}{_poster_editor(title, year, poster_error, return_to)}</div>
+    <div class="detail-content"><h2 class="movie-title">{escape(str(title))}</h2><div class="movie-year">{f'Released in {escape(str(year))}' if year else 'Release year unlisted'}</div><span class="placement-label">{placement}</span>
+    <section class="profile-insights" aria-label="Film ranking insights">
+        <div class="profile-insight"><span>Collection rank</span><strong>#{rank:,}</strong><small>of {total:,} films</small></div>
+        <div class="profile-insight"><span>Ranked above</span><strong>{below:,}</strong><small>{'other film' if below == 1 else 'other films'} in your collection</small></div>
+        <div class="profile-insight"><span>Ranking score</span><strong>{elo_val:,.1f}</strong><small>Higher scores rank higher</small></div>
+    </section>{tie_note}{nearby}
+    <div class="action-buttons"><a href="/vote?target={title_enc}" class="button primary">{icon('vote')}Compare this film</a><a href="/delete?title={title_enc}" class="button danger" data-confirm="{confirmation}">{icon('trash')}Remove film</a></div></div></article>"""
+    return render_page(TEXT_CONTENT['detail_title'], '', 'detail', content)
 
 
 def generate_add_html():
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{TEXT_CONTENT['add_title']}</title>
-    <style>
-        {get_color_css()}
-        .form-container {{ max-width: 450px; margin: 0 auto; background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 6px 18px rgba(0,0,0,0.6); }}
-        .form-group {{ margin-bottom: 20px; text-align: left; }}
-        label {{ display: block; font-weight: bold; margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; }}
-        input[type="text"], input[type="number"] {{ width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); font-size: 15px; box-sizing: border-box; }}
-        input[type="text"]:focus, input[type="number"]:focus {{ border-color: var(--accent-pink); outline: none; }}
-        .rating-box {{ display: flex; align-items: center; gap: 15px; }}
-        .rating-val {{ font-size: 22px; font-weight: bold; color: var(--accent-pink); min-width: 50px; text-align: right; }}
-        .btn-submit {{ width: 100%; padding: 12px; font-size: 16px; font-weight: bold; background-color: var(--accent-magenta); color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: background 0.2s; }}
-        .btn-submit:hover {{ background-color: var(--accent-pink); color: #000; }}
-    </style>
-</head>
-<body>
-    <h1>{TEXT_CONTENT['add_title']}</h1>
-    <p class="subtitle">{TEXT_CONTENT['add_subtitle']}</p>
-    {generate_header_nav("add")}
-
-    <div class="form-container">
-        <form action="/add" method="GET">
-            <div class="form-group">
-                <label for="title">Movie Title *</label>
-                <input type="text" id="title" name="title" placeholder="e.g. Inception" required autofocus>
-            </div>
-
-            <div class="form-group">
-                <label for="year">Release Year (Optional)</label>
-                <input type="number" id="year" name="year" placeholder="e.g. 2010" min="1880" max="2030">
-            </div>
-
-            <div class="form-group">
-                <label for="rating">Initial Rating (Scale ~1-10) *</label>
-                <div class="rating-box">
-                    <input type="number" id="rating" name="rating" min="0" max="100" step="0.1" value="7.0" required oninput="document.getElementById('val-disp').innerText = parseFloat(this.value).toFixed(1) + '/10'">
-                    <span class="rating-val" id="val-disp">7.0/10</span>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-submit">{TEXT_CONTENT['add_btn']}</button>
-        </form>
-    </div>
-</body>
-</html>
-"""
+    content = f"""<div class="panel form-container"><div class="panel-heading">{icon('plus')}<h2>Film details</h2></div>
+    <form action="/add" method="GET"><div class="form-group"><label for="title">Film title <span>· Required</span></label><input type="text" id="title" name="title" placeholder="e.g. Inception" required></div>
+    <div class="form-group"><label for="year">Release year <span>· Optional</span></label><input type="number" id="year" name="year" placeholder="e.g. 2000" min="1880" max="2030"></div>
+    <div class="form-group"><label for="rating">Your initial rating <span>· Scale 1–10</span></label><div class="rating-box"><input type="number" id="rating" name="rating" min="0" max="100" step="0.1" value="7.0" required><output class="rating-val" id="val-disp" for="rating">7.0/10</output></div></div>
+    <button type="submit" class="button primary full-width">{icon('plus')}{TEXT_CONTENT['add_btn']}</button><p class="form-note">Your rating becomes an initial Elo score. Matchups refine it over time.</p></form></div>"""
+    return render_page(TEXT_CONTENT['add_title'], TEXT_CONTENT['add_subtitle'], 'add', content)
 
 
-def generate_import_html(message=""):
-    status_html = f'<div class="status-msg">{message}</div>' if message else ""
-
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{TEXT_CONTENT['import_title']}</title>
-    <style>
-        {get_color_css()}
-        .container {{ max-width: 600px; margin: 0 auto; }}
-        .card {{ background: var(--bg-card); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); }}
-        .card h2 {{ margin-top: 0; font-size: 20px; color: var(--text-primary); text-align: left; }}
-        .card p {{ color: var(--text-secondary); font-size: 14px; line-height: 1.5; }}
-        .btn {{ display: inline-block; padding: 10px 20px; background: var(--accent-magenta); color: #fff; text-decoration: none; border-radius: 8px; border: none; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; }}
-        .btn:hover {{ background: var(--accent-pink); color: #000; }}
-        .btn-export {{ background: var(--accent-magenta); color: #fff; width: 100%; margin-top: 5px; }}
-        .btn-export:hover {{ background: var(--accent-pink); color: #000; }}
-        select {{ width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); font-size: 14px; outline: none; margin-bottom: 15px; }}
-        input[type="file"] {{ margin: 15px 0; display: block; color: var(--text-secondary); font-size: 14px; }}
-        .status-msg {{ padding: 12px 15px; background: var(--accent-dark-plum); border: 1px solid var(--accent-pink); color: #ffffff; margin-bottom: 25px; border-radius: 8px; text-align: center; font-size: 14px; }}
-        .export-box {{ margin-bottom: 20px; padding: 15px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }}
-        .export-box h3 {{ margin-top: 0; font-size: 16px; margin-bottom: 6px; }}
-    </style>
-</head>
-<body>
-    <h1>{TEXT_CONTENT['import_title']}</h1>
-    <p class="subtitle">{TEXT_CONTENT['import_subtitle']}</p>
-    {generate_header_nav("import")}
-
-    <div class="container">
-        {status_html}
-
-        <div class="card">
-            <h2>Export Database Ratings</h2>
-
-            <div class="export-box">
-                <h3 style="color: var(--accent-pink);">1. elo_data</h3>
-                <p style="font-size: 13px; margin-bottom: 12px;">Export full analytics database including Elo ratings, Z-Scores, and ratings for <strong>all three distribution methods</strong> in every export.</p>
-                <form action="/export" method="GET">
-                    <input type="hidden" name="type" value="elo_data">
-                    <button type="submit" class="btn btn-export">📥 Download 1. elo_data.csv</button>
-                </form>
-            </div>
-
-            <div class="export-box">
-                <h3 style="color: var(--accent-blue);">2. Letterboxd data</h3>
-                <p style="font-size: 13px; margin-bottom: 12px;">Export standard Letterboxd format (<code>Date,Name,Year,Letterboxd URI,Rating</code>). Select which method to output in the rating column:</p>
-                <form action="/export" method="GET">
-                    <input type="hidden" name="type" value="letterboxd">
-                    <label for="method" style="display: block; font-weight: bold; color: var(--text-secondary); font-size: 13px; margin-bottom: 6px;">Select Rating Method:</label>
-                    <select id="method" name="method">
-                        <option value="norm">Standard Normal Bin Scale (Bin 7 = 3.5★, Bin 2 = 1.0★)</option>
-                        <option value="exact">Method 1: Preserved Count Distribution</option>
-                        <option value="optimal">Method 2: Optimal L1 DP Cutoffs</option>
-                    </select>
-                    <button type="submit" class="btn btn-export" style="background: var(--accent-blue);">📥 Download 2. Letterboxd_data.csv</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Import Ratings</h2>
-            <p>Upload a CSV file containing movie titles and ratings to scale and merge into your database.</p>
-            <form action="/import" method="post" enctype="multipart/form-data">
-                <label for="csv_file" style="font-weight: bold; color: var(--text-secondary); font-size: 14px;">Select CSV File:</label>
-                <input type="file" id="csv_file" name="csv_file" accept=".csv" required>
-                <button type="submit" class="btn">🚀 Upload & Import</button>
-            </form>
-        </div>
-    </div>
-</body>
-</html>"""
+def generate_import_html(message=''):
+    status = f'<div class="status-msg {"error" if message.startswith("Error") else ""}" role="status">{escape(message)}</div>' if message else ''
+    content = f"""{status}<div class="data-layout"><section class="panel"><div class="panel-heading">{icon('data')}<h2>Import your films</h2></div>
+    <p>Upload your Letterboxd ratings or a CSV of movie titles and ratings.</p>
+    <form action="/import" method="post" enctype="multipart/form-data"><div class="upload-area">{icon('film')}<label for="csv_file">Choose your ratings CSV</label><input type="file" id="csv_file" name="csv_file" accept=".csv" required></div>
+    <button type="submit" class="button primary full-width">{icon('data')}Upload & import</button><p class="form-note">New films are merged into your collection. Existing titles are retained.</p></form></section>
+    <section class="panel"><div class="panel-heading">{icon('arrow')}<h2>Export your films</h2></div>
+    <div class="export-box"><h3>Your complete film database</h3><p>Includes Elo, z-scores, and ratings for all three distribution methods.</p><form action="/export" method="GET"><input type="hidden" name="type" value="elo_data"><button type="submit" class="button secondary full-width">{icon('data')}Download elo_data.csv</button></form></div>
+    <div class="export-box"><h3>Letterboxd ratings</h3><p>Format: <code>Date, Name, Year, Letterboxd URI, Rating</code>. Choose the distribution used for star ratings.</p>
+    <form action="/export" method="GET"><input type="hidden" name="type" value="letterboxd"><label for="method">Rating method</label><select id="method" name="method"><option value="norm">Standard normal bin scale</option><option value="exact">Method 1: Preserved count distribution</option><option value="optimal">Method 2: Optimal L1 DP cutoffs</option></select><button type="submit" class="button secondary full-width">{icon('data')}Download Letterboxd_data.csv</button></form></div></section></div>"""
+    return render_page(TEXT_CONTENT['import_title'], TEXT_CONTENT['import_subtitle'], 'import', content)
 
 
 def generate_stats_html():
-    for item in AppState.movie_elo:
-        item[1] = AppState.elo.getPlayerRating(item[0])
-    AppState.movie_elo.sort(key=lambda x: x[1], reverse=True)
-
-    total_movies = len(AppState.movie_elo)
-    if total_movies == 0:
-        return "<h1>No movies loaded to display statistics!</h1>"
-
-    elo_vals = [m[1] for m in AppState.movie_elo]
-    mean_elo = sum(elo_vals) / total_movies
-    variance = sum((e - mean_elo) ** 2 for e in elo_vals) / total_movies
-    std_dev = math.sqrt(variance) if variance > 0 else 1.0
-
-    norm_bin_counts = [0] * 10
-    bin_movie_samples = [[] for _ in range(10)]
-
-    for rank, item in enumerate(AppState.movie_elo, 1):
-        z = (item[1] - mean_elo) / std_dev
-        idx, label, low, high = get_normal_bin_info(z)
-        norm_bin_counts[idx] += 1
-        if len(bin_movie_samples[idx]) < 3:
-            bin_movie_samples[idx].append(item[0])
-
+    _refresh_rankings()
+    total = len(AppState.movie_elo)
+    if not total:
+        return empty_page('stats', TEXT_CONTENT['stats_title'], 'Your ratings tell a story. Add films to see their distribution here.')
+    mean, std = _distribution()
+    norm_counts = [0] * 10
+    samples = [[] for _ in range(10)]
+    for movie in AppState.movie_elo:
+        index, _, _, _ = get_normal_bin_info((movie[1] - mean) / std)
+        norm_counts[index] += 1
+        if len(samples[index]) < 3:
+            samples[index].append(movie[0])
     ratings_map, ratings_list = get_movie_original_ratings()
-    _, _, exact_bin_counts, optimal_bin_counts = compute_doc3_methods(AppState.movie_elo, ratings_map, ratings_list)
+    _, _, exact_counts, optimal_counts = compute_doc3_methods(AppState.movie_elo, ratings_map, ratings_list)
+    theoretical = [0.0228, 0.0440, 0.0918, 0.1498, 0.1916, 0.1916, 0.1498, 0.0918, 0.0440, 0.0228]
+    expected = [fraction * total for fraction in theoretical]
+    max_count = max(*norm_counts, *exact_counts, *optimal_counts, *expected, 1)
+    bars, rows = '', ''
+    for index in range(10):
+        number = index + 1
+        bar_links = ''
+        table_links = ''
+        for method, counts in [('norm', norm_counts), ('exact', exact_counts), ('optimal', optimal_counts)]:
+            count = counts[index]
+            height = max(4, int(count / max_count * 220))
+            bar_links += f'<a class="bar bar-{method}" style="height:{height}px" href="/bin?bin={number}&method={method}" aria-label="{method}, bin {number}: {count} films" title="{method}, bin {number}: {count} films"><span class="bar-count">{count if count else ""}</span></a>'
+            table_links += f'<td><a class="{method}" href="/bin?bin={number}&method={method}">{count} ({count / total * 100:.1f}%)</a></td>'
+        bars += f'<div class="bar-column"><div class="bar-wrapper"><div class="ideal-line" style="bottom:{int(expected[index] / max_count * 220)}px" title="Expected: {expected[index]:.1f} films"></div>{bar_links}</div><a class="bar-label" href="/bin?bin={number}&method=norm">Bin {number} ↗</a><div class="bar-sublabel">{escape(NORMAL_BIN_BOUNDS[index][2].strip())}</div></div>'
+        sample_text = ', '.join(escape(str(title)) for title in samples[index]) if samples[index] else '<em>No films</em>'
+        rows += f'<tr><td><a href="/bin?bin={number}&method=norm">Bin {number} ↗</a><div class="stat-caption">{escape(NORMAL_BIN_BOUNDS[index][2].strip())}</div></td>{table_links}<td>{expected[index]:.1f} ({theoretical[index] * 100:.1f}%)</td><td class="sample-movies">{sample_text}<br><a href="/bin?bin={number}&method=norm">Explore films →</a></td></tr>'
+    content = f"""<section class="stats-summary" aria-label="Collection statistics"><div class="stat-card"><div class="label">Films in collection</div><div class="val">{total:,}</div></div><div class="stat-card"><div class="label">Mean Elo</div><div class="val">{mean:,.1f}</div></div><div class="stat-card"><div class="label">Standard deviation · σ</div><div class="val">{std:,.1f}</div></div></section>
+    <section class="panel chart-card"><div class="chart-title">{TEXT_CONTENT['stats_chart_title']}</div><p class="chart-desc">{TEXT_CONTENT['stats_chart_desc']}</p><div class="legend"><span class="legend-item"><i class="legend-box"></i>Standard normal · σ</span><span class="legend-item"><i class="legend-box exact"></i>Method 1 · Preserved counts</span><span class="legend-item"><i class="legend-box optimal"></i>Method 2 · Optimal L1 cutoffs</span></div><div class="chart-scroll" tabindex="0" role="region" aria-label="Rating distribution chart; scroll horizontally on small screens"><div class="histogram">{bars}</div></div></section>
+    <section class="panel table-card" tabindex="0" aria-label="Bin breakdown; scroll horizontally on small screens"><h2>The details, bin by bin</h2><table><caption class="sr-only">Film counts for each distribution method and expected normal distribution</caption><thead><tr><th scope="col">Rating bin</th><th scope="col">Standard normal</th><th scope="col">Preserved counts</th><th scope="col">Optimal L1</th><th scope="col">Expected</th><th scope="col">A few films</th></tr></thead><tbody>{rows}</tbody></table></section>"""
+    return render_page(TEXT_CONTENT['stats_title'], TEXT_CONTENT['stats_subtitle'], 'stats', content)
 
-    theoretical_pcts = [0.0228, 0.0440, 0.0918, 0.1498, 0.1916, 0.1916, 0.1498, 0.0918, 0.0440, 0.0228]
-    expected_counts = [p * total_movies for p in theoretical_pcts]
 
-    max_count = max(
-        max(norm_bin_counts),
-        max(exact_bin_counts),
-        max(optimal_bin_counts),
-        max(expected_counts),
-        1,
-    )
-
-    histogram_bars_html = ""
-    for i in range(10):
-        norm_c = norm_bin_counts[i]
-        exact_c = exact_bin_counts[i]
-        optimal_c = optimal_bin_counts[i]
-        exp_c = expected_counts[i]
-
-        norm_h = int((norm_c / max_count) * 220)
-        exact_h = int((exact_c / max_count) * 220)
-        optimal_h = int((optimal_c / max_count) * 220)
-        ideal_h = int((exp_c / max_count) * 220)
-
-        bin_label = f"Bin {i + 1}"
-
-        histogram_bars_html += f"""
-        <div class="bar-column">
-            <div class="bar-wrapper">
-                <div class="ideal-line" style="bottom: {ideal_h}px;" title="Theoretical Expectation: {exp_c:.1f} movies"></div>
-                <a href="/bin?bin={i + 1}&method=norm" class="bar bar-norm" style="height: {max(norm_h, 4)}px;" title="Standard Normal Bin #{i + 1}: {norm_c} movies">
-                    <span class="bar-count-norm">{norm_c if norm_c > 0 else ''}</span>
-                </a>
-                <a href="/bin?bin={i + 1}&method=exact" class="bar bar-exact" style="height: {max(exact_h, 4)}px;" title="Method 1 Bin #{i + 1}: {exact_c} movies">
-                    <span class="bar-count-exact">{exact_c if exact_c > 0 else ''}</span>
-                </a>
-                <a href="/bin?bin={i + 1}&method=optimal" class="bar bar-optimal" style="height: {max(optimal_h, 4)}px;" title="Method 2 Bin #{i + 1}: {optimal_c} movies">
-                    <span class="bar-count-optimal">{optimal_c if optimal_c > 0 else ''}</span>
-                </a>
-            </div>
-            <a href="/bin?bin={i + 1}&method=norm" style="text-decoration: none;">
-                <div class="bar-label" style="color: var(--accent-pink); cursor: pointer;">{bin_label} ↗</div>
-            </a>
-            <div class="bar-sublabel">{NORMAL_BIN_BOUNDS[i][2]}</div>
-        </div>
-        """
-
-    table_rows_html = ""
-    for i in range(10):
-        norm_c = norm_bin_counts[i]
-        exact_c = exact_bin_counts[i]
-        optimal_c = optimal_bin_counts[i]
-        exp_c = expected_counts[i]
-
-        norm_pct = (norm_c / total_movies) * 100.0
-        exact_pct = (exact_c / total_movies) * 100.0
-        optimal_pct = (optimal_c / total_movies) * 100.0
-
-        samples_str = ", ".join(bin_movie_samples[i]) if bin_movie_samples[i] else "<em>Empty Bucket</em>"
-
-        table_rows_html += f"""
-        <tr>
-            <td><a href="/bin?bin={i + 1}&method=norm" style="color: var(--accent-pink); font-weight: bold; text-decoration: none;">Bin {i + 1} ↗</a> ({NORMAL_BIN_BOUNDS[i][2]})</td>
-            <td><a href="/bin?bin={i + 1}&method=norm" style="color: var(--accent-pink); font-weight: bold; text-decoration: none;">{norm_c} ({norm_pct:.1f}%)</a></td>
-            <td><a href="/bin?bin={i + 1}&method=exact" style="color: var(--accent-blue); font-weight: bold; text-decoration: none;">{exact_c} ({exact_pct:.1f}%)</a></td>
-            <td><a href="/bin?bin={i + 1}&method=optimal" style="color: var(--accent-magenta); font-weight: bold; text-decoration: none;">{optimal_c} ({optimal_pct:.1f}%)</a></td>
-            <td style="color: var(--text-secondary);">~{exp_c:.1f} ({(exp_c / total_movies) * 100:.1f}%)</td>
-            <td class="sample-movies">
-                {samples_str}<br>
-                <a href="/bin?bin={i + 1}&method=norm" style="color: var(--accent-pink); font-size: 11px; text-decoration: none; font-weight: bold;">View Bin {i + 1} Movies →</a>
-            </td>
-        </tr>
-        """
-
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-    <title>{TEXT_CONTENT['stats_title']}</title>
-    <style>
-        {get_color_css()}
-        .stats-summary {{ display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }}
-        .stat-card {{ background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; border-radius: 12px; text-align: center; min-width: 140px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }}
-        .stat-card .val {{ font-size: 22px; font-weight: bold; color: var(--accent-pink); margin-top: 5px; }}
-        .stat-card .label {{ font-size: 12px; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }}
-
-        .chart-card {{ background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); max-width: 1100px; margin-left: auto; margin-right: auto; }}
-        .chart-title {{ font-size: 18px; font-weight: bold; margin-bottom: 5px; text-align: center; color: var(--text-primary); }}
-        .chart-desc {{ font-size: 13px; color: var(--text-secondary); text-align: center; margin-bottom: 20px; }}
-
-        .legend {{ display: flex; justify-content: center; gap: 25px; margin-bottom: 25px; font-size: 13px; font-weight: bold; flex-wrap: wrap; }}
-        .legend-item {{ display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }}
-        .legend-box {{ width: 14px; height: 14px; border-radius: 3px; display: inline-block; }}
-
-        .histogram {{ display: flex; justify-content: space-between; align-items: flex-end; height: 260px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; gap: 8px; position: relative; }}
-        .bar-column {{ flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; position: relative; }}
-        .bar-wrapper {{ width: 100%; height: 220px; position: relative; display: flex; justify-content: center; }}
-
-        .bar {{ display: block; border-radius: 6px 6px 0 0; position: absolute; bottom: 0; transition: height 0.3s ease, filter 0.2s ease, transform 0.1s ease; text-decoration: none; cursor: pointer; }}
-        .bar:hover {{ filter: brightness(1.35); z-index: 10 !important; transform: scaleY(1.02); }}
-        .bar-norm {{ background: rgba(232, 147, 210, 0.85); border: 1px solid #e893d2; z-index: 3; width: 30%; left: 5%; }}
-        .bar-exact {{ background: rgba(58, 126, 204, 0.85); border: 1px solid #3a7ecc; z-index: 2; width: 35%; left: 35%; }}
-        .bar-optimal {{ background: rgba(198, 31, 153, 0.85); border: 1px solid #c61f99; z-index: 1; width: 30%; left: 65%; }}
-
-        .bar-count-norm {{ position: absolute; top: -18px; width: 100%; text-align: center; font-size: 10px; font-weight: bold; color: #e893d2; }}
-        .bar-count-exact {{ position: absolute; top: -18px; width: 100%; text-align: center; font-size: 10px; font-weight: bold; color: #3a7ecc; }}
-        .bar-count-optimal {{ position: absolute; top: -18px; width: 100%; text-align: center; font-size: 10px; font-weight: bold; color: #c61f99; }}
-
-        .ideal-line {{ position: absolute; width: 100%; height: 2px; background: #ede5f6; z-index: 4; border-top: 1px dashed #ede5f6; opacity: 0.8; pointer-events: none; }}
-
-        .bar-label {{ font-size: 11px; font-weight: bold; margin-top: 8px; text-align: center; }}
-        .bar-sublabel {{ font-size: 9px; color: var(--text-secondary); text-align: center; margin-top: 2px; }}
-
-        .table-card {{ background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; max-width: 1100px; margin: 0 auto 40px auto; box-shadow: 0 6px 18px rgba(0,0,0,0.6); overflow-x: auto; }}
-        table {{ width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }}
-        th, td {{ padding: 12px 10px; border-bottom: 1px solid var(--border-color); }}
-        th {{ background: var(--bg-input); color: var(--text-secondary); font-size: 12px; text-transform: uppercase; }}
-        tr:hover {{ background: var(--bg-input); }}
-        .sample-movies {{ font-size: 12px; color: var(--text-secondary); }}
-    </style>
-</head>
-<body>
-    <h1>{TEXT_CONTENT['stats_title']}</h1>
-    <p class="subtitle">{TEXT_CONTENT['stats_subtitle']}</p>
-    {generate_header_nav("stats")}
-
-    <div class="stats-summary">
-        <div class="stat-card">
-            <div class="label">Total Movies</div>
-            <div class="val">{total_movies}</div>
-        </div>
-        <div class="stat-card">
-            <div class="label">Mean Elo</div>
-            <div class="val">{mean_elo:.1f}</div>
-        </div>
-        <div class="stat-card">
-            <div class="label">Std Dev (σ)</div>
-            <div class="val">{std_dev:.1f}</div>
-        </div>
-    </div>
-
-    <div class="chart-card">
-        <div class="chart-title">{TEXT_CONTENT['stats_chart_title']}</div>
-        <div class="chart-desc">{TEXT_CONTENT['stats_chart_desc']}</div>
-
-        <div class="legend">
-            <div class="legend-item"><span class="legend-box" style="background: rgba(232, 147, 210, 0.85); border: 1px solid #e893d2;"></span> Standard Normal Z-Score (σ)</div>
-            <div class="legend-item"><span class="legend-box" style="background: rgba(58, 126, 204, 0.85); border: 1px solid #3a7ecc;"></span> Method 1: Preserved Count Dist.</div>
-            <div class="legend-item"><span class="legend-box" style="background: rgba(198, 31, 153, 0.85); border: 1px solid #c61f99;"></span> Method 2: Optimal L1 DP Cutoffs</div>
-        </div>
-
-        <div class="histogram">
-            {histogram_bars_html}
-        </div>
-    </div>
-
-    <div class="table-card">
-        <h2 style="margin-top: 0; margin-bottom: 15px; font-size: 18px; color: var(--text-primary); text-align: left;">Bin Breakdown Table</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Bin Range</th>
-                    <th>Standard Normal</th>
-                    <th>Method 1</th>
-                    <th>Method 2</th>
-                    <th>Expected</th>
-                    <th>Sample Movies</th>
-                </tr>
-            </thead>
-            <tbody>
-                {table_rows_html}
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>
-"""
+def generate_help_html():
+    steps = [
+        ('Import or add films', 'Open Import & export and upload your Letterboxd ratings.csv or a CSV with title, year, and rating columns. You can also add individual films from Add a film.', '/import', 'Import ratings'),
+        ('Refine rankings with match voting', 'Choose the better of two films. Both scores update after each choice. Mark a tie if you like them equally, or skip to leave both scores unchanged. Undo last vote restores both previous scores and shows the same pair again.', '/vote', 'Start voting'),
+        ('Order several films at once', 'Rank a cluster selects up to ten films with similar scores. Drag them or use the arrows, with your favorite first. Save ranking updates their scores from your chosen order.', '/rank10', 'Rank a cluster'),
+        ('Browse and compare your collection', 'Rankings shows films from highest to lowest score. Switch between posters and a list, or search for a title. A film profile shows its rank, the films it outranks, and nearby titles. Back to rankings returns to the same page, layout, and scroll position.', '/', 'View rankings'),
+        ('Choose a custom poster', 'Open a film profile and expand Change poster. Upload a PNG, JPEG, GIF, or WebP up to 8 MB, or enter a direct image link. Save poster applies it across the app. Use automatic poster restores the default artwork.', '/', 'Choose a film'),
+        ('Export or explore your ratings', 'Import & export downloads your full ranking data or Letterboxd star ratings. Analytics contains the detailed distribution methods and filters; these calculations stay out of individual film profiles.', '/import', 'Export ratings'),
+    ]
+    items = ''.join(f'<li class="guide-step"><span class="guide-number">{index:02d}</span><div><h2>{heading}</h2><p>{description}</p><a class="guide-link" href="{url}">{label}{icon("arrow")}</a></div></li>' for index, (heading, description, url, label) in enumerate(steps, 1))
+    content = f'<ol class="guide-steps">{items}</ol><section class="panel guide-notes"><h2>About scores and undo</h2><p>Ranking scores are relative to your collection. Use the rank and nearby titles to judge whether a film is placed correctly. Your imported ratings provide a starting point; comparisons refine the order.</p><p>You can undo the last 100 match votes, newest first, including after restarting the app. Importing data, adding or removing films, or saving a cluster starts a new undo history.</p><p>Your rankings and uploaded posters are saved on this device.</p></section>'
+    return render_page('How to use', 'Set up your collection, refine the order, and manage your films.', 'help', content)
