@@ -136,7 +136,7 @@ img {
     flex-shrink: 0;
 }
 
-/* SIDEBAR NAVIGATION */
+/* SIDEBAR NAVIGATION (COLLAPSIBLE ON DESKTOP & MOBILE) */
 .sidebar {
     position: fixed;
     top: 0;
@@ -161,16 +161,29 @@ img {
     font-size: 0.9rem;
     letter-spacing: 0.18em;
     color: var(--accent);
-    padding: 0.35rem 0.75rem 1.4rem;
+    padding: 0.35rem 2.75rem 1.4rem 0.75rem;
     border-bottom: 1px solid var(--border-subtle);
     margin-bottom: 1.25rem;
 }
 
-.nav-close {
-    display: none;
+.icon-button.nav-close {
     position: absolute;
-    top: 1.15rem;
+    top: 1.25rem;
     right: 1rem;
+}
+
+/* When sidebar is open on desktop, hide the redundant hamburger button in topbar */
+body:not(.sidebar-collapsed) .icon-button.menu-toggle {
+    display: none;
+}
+
+/* When sidebar is collapsed on desktop, slide it off-screen and expand main content */
+body.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+}
+
+body.sidebar-collapsed .app-content {
+    margin-left: 0;
 }
 
 .nav-group {
@@ -227,6 +240,7 @@ img {
     min-width: 0;
     display: flex;
     flex-direction: column;
+    transition: margin-left 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .topbar {
@@ -242,10 +256,6 @@ img {
     display: flex;
     align-items: center;
     gap: 1.25rem;
-}
-
-.menu-toggle {
-    display: none;
 }
 
 .breadcrumb {
@@ -1725,7 +1735,7 @@ input:focus, select:focus {
     .sidebar.open {
         transform: translateX(0);
     }
-    .nav-close, .menu-toggle {
+    body:not(.sidebar-collapsed) .icon-button.menu-toggle {
         display: inline-flex;
     }
     .app-content {
@@ -1760,19 +1770,37 @@ input:focus, select:focus {
 
 APP_JS = """
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Mobile sidebar navigation toggle
+    // 1. Sidebar collapse & expand (works on both desktop and mobile)
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.querySelector('.menu-toggle');
     const navClose = document.querySelector('.nav-close');
+    const isMobile = () => window.matchMedia('(max-width: 960px)').matches;
+
+    if (!isMobile() && localStorage.getItem('cine_elo_sidebar') === 'collapsed') {
+        document.body.classList.add('sidebar-collapsed');
+    }
+
     if (menuToggle && sidebar) {
         menuToggle.addEventListener('click', () => {
-            const isOpen = sidebar.classList.toggle('open');
-            menuToggle.setAttribute('aria-expanded', String(isOpen));
+            if (isMobile()) {
+                const isOpen = sidebar.classList.toggle('open');
+                menuToggle.setAttribute('aria-expanded', String(isOpen));
+            } else {
+                document.body.classList.remove('sidebar-collapsed');
+                localStorage.setItem('cine_elo_sidebar', 'open');
+                menuToggle.setAttribute('aria-expanded', 'true');
+            }
         });
     }
+
     if (navClose && sidebar) {
         navClose.addEventListener('click', () => {
-            sidebar.classList.remove('open');
+            if (isMobile()) {
+                sidebar.classList.remove('open');
+            } else {
+                document.body.classList.add('sidebar-collapsed');
+                localStorage.setItem('cine_elo_sidebar', 'collapsed');
+            }
             if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
         });
     }
@@ -1941,7 +1969,7 @@ def header_nav(active="rankings", query_val=""):
         links += "</div>"
     return f"""
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-        <button class="icon-button nav-close" aria-label="Close navigation">{icon('close')}</button>
+        <button class="icon-button nav-close" aria-label="Collapse sidebar" title="Collapse sidebar">{icon('close')}</button>
         <nav>{links}</nav>
     </aside>"""
 
@@ -1963,7 +1991,7 @@ def page(title, subtitle, active, content, query="", eyebrow="", hero_extra="", 
     {header_nav(active)}
     <div class="app-content">
         <header class="topbar">
-            <button class="icon-button menu-toggle" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">{icon('menu')}</button>
+            <button class="icon-button menu-toggle" aria-label="Open navigation" title="Expand sidebar" aria-controls="sidebar" aria-expanded="true">{icon('menu')}</button>
             <div class="breadcrumb"><a href="/">Collection</a><span>/</span><span>{labels.get(active, 'Collection')}</span></div>
             <form action="/search" method="GET" class="search-form" role="search">
                 <button type="submit" class="search-btn" aria-label="Search films">{icon('search')}</button>
